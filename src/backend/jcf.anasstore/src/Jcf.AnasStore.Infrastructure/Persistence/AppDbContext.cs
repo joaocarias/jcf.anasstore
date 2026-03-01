@@ -9,6 +9,7 @@ namespace Jcf.AnasStore.Infrastructure.Persistence;
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<AppUser, AppRole, long>(options), IApplicationDbContext
 {
+    public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Sale> Sales => Set<Sale>();
 
     protected override void OnModelCreating(ModelBuilder builder)
