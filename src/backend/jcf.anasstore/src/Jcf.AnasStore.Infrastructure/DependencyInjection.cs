@@ -67,6 +67,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IdentitySeeder>();
+        services.AddScoped<GenreSeeder>();
 
         services.AddScoped<ICommandDispatcher, CommandDispatcher>();
         services.AddScoped<IQueryDispatcher, QueryDispatcher>();

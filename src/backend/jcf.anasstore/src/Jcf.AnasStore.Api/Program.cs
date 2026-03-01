@@ -72,4 +72,7 @@ static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
 
     var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
     await identitySeeder.SeedAsync(CancellationToken.None);
+
+    var genreSeeder = scope.ServiceProvider.GetRequiredService<GenreSeeder>();
+    await genreSeeder.SeedAsync(CancellationToken.None);
 }
