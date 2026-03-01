@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Jcf.AnasStore.Api/Jcf.AnasStore.Api.csproj" />
+    <Project Path="src/Jcf.AnasStore.Application/Jcf.AnasStore.Application.csproj" />
+    <Project Path="src/Jcf.AnasStore.Domain/Jcf.AnasStore.Domain.csproj" />
+    <Project Path="src/Jcf.AnasStore.Infrastructure/Jcf.AnasStore.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Jcf.AnasStore.Tests/Jcf.AnasStore.Tests.csproj" />
+  </Folder>
+</Solution>
