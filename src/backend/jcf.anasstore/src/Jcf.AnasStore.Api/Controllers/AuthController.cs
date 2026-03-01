@@ -7,9 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace Jcf.AnasStore.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public sealed class AuthController(ICommandDispatcher commandDispatcher) : ControllerBase
 {
+    /// <summary>
+    /// Realiza login e retorna um token JWT válido para autorização nos demais endpoints.
+    /// </summary>
+    /// <param name="request">Credenciais de acesso do usuário.</param>
+    /// <param name="cancellationToken">Token de cancelamento da requisição.</param>
+    /// <returns>Dados de autenticação com token JWT.</returns>
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]

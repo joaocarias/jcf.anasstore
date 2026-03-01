@@ -13,17 +13,29 @@ namespace Jcf.AnasStore.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class SalesController(ICommandDispatcher commandDispatcher, IQueryDispatcher queryDispatcher) : ControllerBase
 {
+    /// <summary>
+    /// Registra uma nova venda no sistema.
+    /// </summary>
+    /// <param name="request">Dados da venda.</param>
+    /// <param name="cancellationToken">Token de cancelamento da requisição.</param>
+    /// <returns>Uid da venda criada.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateSaleRequest request, CancellationToken cancellationToken)
     {
-        var saleId = await commandDispatcher.SendAsync<CreateSaleCommand, long>(
+        var saleUid = await commandDispatcher.SendAsync<CreateSaleCommand, Guid>(
             new CreateSaleCommand(request.CustomerEmail, request.TotalAmount),
             cancellationToken);
 
-        return CreatedAtAction(nameof(GetRecent), new { take = 1 }, new { id = saleId });
+        return CreatedAtAction(nameof(GetRecent), new { take = 1 }, new { uid = saleUid });
     }
 
+    /// <summary>
+    /// Retorna as vendas mais recentes.
+    /// </summary>
+    /// <param name="take">Quantidade de registros retornados.</param>
+    /// <param name="cancellationToken">Token de cancelamento da requisição.</param>
+    /// <returns>Lista de vendas recentes.</returns>
     [HttpGet("recent")]
     [ProducesResponseType(typeof(IReadOnlyList<SaleSummaryDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRecent([FromQuery] int take = 20, CancellationToken cancellationToken = default)

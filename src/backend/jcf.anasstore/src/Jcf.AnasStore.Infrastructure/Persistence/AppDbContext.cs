@@ -17,6 +17,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
         builder.Entity<AppUser>(entity =>
         {
+            entity.Property(x => x.Name).HasColumnName("name").HasMaxLength(200).IsRequired();
             entity.Property(x => x.Uid).HasColumnName("uid").IsRequired();
             entity.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
             entity.Property(x => x.CreateAt).HasColumnName("create_at").IsRequired();

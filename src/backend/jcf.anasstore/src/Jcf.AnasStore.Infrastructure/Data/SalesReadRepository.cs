@@ -11,7 +11,6 @@ public sealed class SalesReadRepository(string connectionString) : ISalesReadRep
     {
         const string sql = """
             select
-              id as Id,
               uid as Uid,
               customer_email as CustomerEmail,
               total_amount as TotalAmount,

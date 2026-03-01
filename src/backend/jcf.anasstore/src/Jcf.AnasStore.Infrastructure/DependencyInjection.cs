@@ -4,6 +4,9 @@ using Jcf.AnasStore.Application.Abstractions.Data;
 using Jcf.AnasStore.Application.Abstractions.Persistence;
 using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Application.Features.Auth.Login;
+using Jcf.AnasStore.Application.Features.Roles.Common;
+using Jcf.AnasStore.Application.Features.Roles.GetAllRoles;
+using Jcf.AnasStore.Application.Features.Roles.GetRoleById;
 using Jcf.AnasStore.Application.Features.Sales.Common;
 using Jcf.AnasStore.Application.Features.Sales.CreateSale;
 using Jcf.AnasStore.Application.Features.Sales.GetRecentSales;
@@ -60,6 +63,7 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddScoped<ISalesReadRepository>(_ => new SalesReadRepository(connectionString));
+        services.AddScoped<IRolesReadRepository>(_ => new RolesReadRepository(connectionString));
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IdentitySeeder>();
@@ -67,7 +71,9 @@ public static class DependencyInjection
         services.AddScoped<ICommandDispatcher, CommandDispatcher>();
         services.AddScoped<IQueryDispatcher, QueryDispatcher>();
         services.AddScoped<ICommandHandler<LoginCommand, LoginResult>, LoginCommandHandler>();
-        services.AddScoped<ICommandHandler<CreateSaleCommand, long>, CreateSaleCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateSaleCommand, Guid>, CreateSaleCommandHandler>();
+        services.AddScoped<IQueryHandler<GetAllRolesQuery, IReadOnlyList<RoleDto>>, GetAllRolesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetRoleByIdQuery, RoleDto?>, GetRoleByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetRecentSalesQuery, IReadOnlyList<SaleSummaryDto>>, GetRecentSalesQueryHandler>();
 
         return services;

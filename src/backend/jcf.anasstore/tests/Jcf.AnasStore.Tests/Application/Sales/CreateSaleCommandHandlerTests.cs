@@ -14,7 +14,7 @@ public sealed class CreateSaleCommandHandlerTests
 
         var saleId = await handler.HandleAsync(new CreateSaleCommand("client@anasstore.com", 120.50m), CancellationToken.None);
 
-        Assert.Equal(0, saleId);
+        Assert.NotEqual(Guid.Empty, saleId);
         Assert.Single(fakeDbContext.Sales);
         Assert.Equal(1, fakeDbContext.SaveChangesCallCount);
     }

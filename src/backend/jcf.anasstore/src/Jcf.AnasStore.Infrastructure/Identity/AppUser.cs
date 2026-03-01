@@ -4,6 +4,7 @@ namespace Jcf.AnasStore.Infrastructure.Identity;
 
 public sealed class AppUser : IdentityUser<long>
 {
+    public string Name { get; set; } = string.Empty;
     public Guid Uid { get; set; } = Guid.NewGuid();
     public bool IsActive { get; set; } = true;
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
