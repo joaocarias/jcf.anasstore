@@ -69,6 +69,7 @@ public static class DependencyInjection
         services.AddScoped<IdentitySeeder>();
         services.AddScoped<GenreSeeder>();
         services.AddScoped<ItemSizeSeeder>();
+        services.AddScoped<ColorSeeder>();
 
         services.AddScoped<ICommandDispatcher, CommandDispatcher>();
         services.AddScoped<IQueryDispatcher, QueryDispatcher>();

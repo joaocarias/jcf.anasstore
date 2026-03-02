@@ -10,6 +10,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<AppUser, AppRole, long>(options), IApplicationDbContext
 {
     public DbSet<Address> Addresses => Set<Address>();
+    public DbSet<Color> Colors => Set<Color>();
+    public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Genre> Genres => Set<Genre>();
     public DbSet<ItemSize> ItemSizes => Set<ItemSize>();
     public DbSet<Sale> Sales => Set<Sale>();
