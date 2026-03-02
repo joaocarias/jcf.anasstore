@@ -11,6 +11,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 {
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Genre> Genres => Set<Genre>();
+    public DbSet<ItemSize> ItemSizes => Set<ItemSize>();
     public DbSet<Sale> Sales => Set<Sale>();
 
     protected override void OnModelCreating(ModelBuilder builder)

@@ -75,4 +75,7 @@ static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
 
     var genreSeeder = scope.ServiceProvider.GetRequiredService<GenreSeeder>();
     await genreSeeder.SeedAsync(CancellationToken.None);
+
+    var itemSizeSeeder = scope.ServiceProvider.GetRequiredService<ItemSizeSeeder>();
+    await itemSizeSeeder.SeedAsync(CancellationToken.None);
 }
