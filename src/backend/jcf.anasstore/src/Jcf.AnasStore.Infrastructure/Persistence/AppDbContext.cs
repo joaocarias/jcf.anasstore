@@ -30,6 +30,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             entity.Property(x => x.UpdateAt).HasColumnName("update_at");
             entity.Property(x => x.UserUpdateId).HasColumnName("user_update_id");
             entity.HasIndex(x => x.Uid).IsUnique();
+            entity.HasQueryFilter(x => x.IsActive);
         });
 
         builder.Entity<AppRole>(entity =>
@@ -41,9 +42,17 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             entity.Property(x => x.UpdateAt).HasColumnName("update_at");
             entity.Property(x => x.UserUpdateId).HasColumnName("user_update_id");
             entity.HasIndex(x => x.Uid).IsUnique();
+            entity.HasQueryFilter(x => x.IsActive);
         });
 
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        builder.Entity<Address>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Color>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Customer>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Genre>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<ItemSize>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Sale>().HasQueryFilter(x => x.IsActive);
     }
 
     public Task AddSaleAsync(Sale sale, CancellationToken cancellationToken)

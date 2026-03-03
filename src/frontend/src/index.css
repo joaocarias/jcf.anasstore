@@ -1,19 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap');
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --rose-600: #e11d74;
-  --rose-400: #fb7185;
-  --peach-100: #fff3f6;
-  --amber-100: #fff5e9;
-  --mint-100: #edfdf7;
-  --ink-900: #25162c;
-  --ink-700: #5b4563;
-  --ink-500: #826c8c;
-}
-
-#root {
-  min-height: 100vh;
+  --blue-600: #2563eb;
+  --blue-800: #1e40af;
+  --gray-900: #111827;
+  --gray-800: #1f2937;
+  --gray-050: #f9fafb;
+  --blue-hover: #3b82f6;
 }
 
 * {
@@ -23,16 +18,24 @@
 body {
   margin: 0;
   min-width: 320px;
-  font-family: Manrope, "Segoe UI", sans-serif;
-  color: var(--ink-900);
-  background:
-    radial-gradient(circle at 0% 0%, #ffe1ea 0%, transparent 38%),
-    radial-gradient(circle at 100% 100%, #e9fff7 0%, transparent 45%),
-    linear-gradient(130deg, var(--peach-100) 20%, var(--amber-100) 54%, var(--mint-100) 100%);
+  font-family: Manrope, 'Segoe UI', sans-serif;
+  color: var(--gray-900);
+  background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 40%, #e5e7eb 100%);
 }
 
-h1, h2, h3 {
-  font-family: Sora, "Segoe UI", sans-serif;
+.dark body {
+  color: #f3f4f6;
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #111827 100%);
+}
+
+h1,
+h2,
+h3 {
+  font-family: Sora, 'Segoe UI', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 .login-shell {
@@ -40,17 +43,59 @@ h1, h2, h3 {
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .login-card {
   width: min(100%, 30rem);
-  border: 1px solid rgb(255 255 255 / 70%);
-  border-radius: 1.5rem;
-  background: rgb(255 255 255 / 76%);
-  padding: 1.75rem;
-  box-shadow: 0 18px 45px rgb(118 35 70 / 18%);
-  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  border: 1px solid #dbeafe;
+  background: var(--gray-050);
+  padding: 2rem;
+  box-shadow: 0 24px 48px rgb(17 24 39 / 14%);
+}
+
+.dark .login-card {
+  border-color: #1f2937;
+  background: #111827;
+  box-shadow: 0 24px 48px rgb(2 6 23 / 55%);
+}
+
+.title-block {
+  margin-bottom: 1.8rem;
+}
+
+.title-block h1 {
+  margin: 0.4rem 0 0.6rem;
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  color: var(--gray-900);
+}
+
+.dark .title-block h1 {
+  color: #f3f4f6;
+}
+
+.title-block p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.dark .title-block p {
+  color: #94a3b8;
+}
+
+.brand-tag {
+  margin: 0;
+  color: var(--blue-600);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
 }
 
 .field {
@@ -58,57 +103,82 @@ h1, h2, h3 {
 }
 
 .field-label {
-  margin-bottom: 0.5rem;
   display: block;
+  margin-bottom: 0.45rem;
+  color: #374151;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--ink-700);
+}
+
+.dark .field-label {
+  color: #cbd5e1;
 }
 
 .field-input {
   width: 100%;
-  border: 1px solid #ebd3df;
-  border-radius: 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
   background: #fff;
-  padding: 0.75rem 0.9rem;
+  padding: 0.72rem 0.86rem;
+  color: #111827;
   font: inherit;
-  color: var(--ink-900);
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.dark .field-input {
+  border-color: #334155;
+  background: #0f172a;
+  color: #f8fafc;
 }
 
 .field-input::placeholder {
-  color: var(--ink-500);
+  color: #9ca3af;
+}
+
+.dark .field-input::placeholder {
+  color: #64748b;
 }
 
 .field-input:focus-visible {
   outline: none;
-  border-color: var(--rose-400);
-  box-shadow: 0 0 0 4px rgb(251 113 133 / 18%);
+  border-color: var(--blue-600);
+  box-shadow: 0 0 0 4px rgb(37 99 235 / 18%);
+}
+
+.error-message {
+  margin: 0;
+  border-radius: 0.75rem;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.9rem;
 }
 
 .login-button {
   width: 100%;
   border: 0;
-  border-radius: 0.95rem;
-  background: linear-gradient(90deg, var(--rose-600), #ef4f75);
-  padding: 0.82rem 1rem;
-  font: inherit;
-  font-weight: 800;
+  border-radius: 0.75rem;
+  background: var(--blue-600);
+  padding: 0.78rem 1rem;
   color: #fff;
+  font: inherit;
+  font-weight: 700;
   cursor: pointer;
-  transition: filter 120ms ease, transform 120ms ease;
+  box-shadow: 0 12px 20px rgb(37 99 235 / 30%);
+  transition: transform 140ms ease, background-color 140ms ease, filter 140ms ease;
 }
 
 .login-button:hover {
-  filter: brightness(1.08);
+  background: var(--blue-800);
 }
 
 .login-button:active {
   transform: translateY(1px);
 }
 
-@media (min-width: 768px) {
-  .login-card {
-    padding: 2.2rem;
-  }
+.login-button:disabled {
+  cursor: wait;
+  filter: grayscale(0.1);
+  opacity: 0.85;
 }

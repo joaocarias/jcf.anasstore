@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Api.Contracts.Colors;
 using Jcf.AnasStore.Domain.Entities;
 using Jcf.AnasStore.Infrastructure.Persistence;
@@ -18,15 +19,25 @@ public sealed class ColorsController(AppDbContext dbContext) : ControllerBase
     /// Lists all colors ordered by name.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<ColorResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(PagedResponse<ColorResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
+        var total = await dbContext.Colors
+            .AsNoTracking()
+            .CountAsync(cancellationToken);
+
         var colors = await dbContext.Colors
             .AsNoTracking()
             .OrderBy(x => x.Name)
+            .Skip((query.ValidPage - 1) * query.ValidPageSize)
+            .Take(query.ValidPageSize)
             .ToListAsync(cancellationToken);
 
-        return Ok(colors.Select(ToResponse).ToList());
+        return Ok(new PagedResponse<ColorResponse>(
+            colors.Select(ToResponse).ToList(),
+            total,
+            query.ValidPage,
+            query.ValidPageSize));
     }
 
     /// <summary>

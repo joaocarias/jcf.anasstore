@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Api.Contracts.ItemSizes;
 using Jcf.AnasStore.Domain.Entities;
 using Jcf.AnasStore.Infrastructure.Persistence;
@@ -18,15 +19,25 @@ public sealed class ItemSizesController(AppDbContext dbContext) : ControllerBase
     /// Lists all item sizes ordered by order.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<ItemSizeResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(PagedResponse<ItemSizeResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
+        var total = await dbContext.ItemSizes
+            .AsNoTracking()
+            .CountAsync(cancellationToken);
+
         var itemSizes = await dbContext.ItemSizes
             .AsNoTracking()
             .OrderBy(x => x.Order)
+            .Skip((query.ValidPage - 1) * query.ValidPageSize)
+            .Take(query.ValidPageSize)
             .ToListAsync(cancellationToken);
 
-        return Ok(itemSizes.Select(ToResponse).ToList());
+        return Ok(new PagedResponse<ItemSizeResponse>(
+            itemSizes.Select(ToResponse).ToList(),
+            total,
+            query.ValidPage,
+            query.ValidPageSize));
     }
 
     /// <summary>

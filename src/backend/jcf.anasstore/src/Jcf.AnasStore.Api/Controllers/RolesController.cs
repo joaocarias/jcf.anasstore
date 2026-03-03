@@ -2,6 +2,7 @@ using Jcf.AnasStore.Application.Abstractions.Cqrs;
 using Jcf.AnasStore.Application.Features.Roles.Common;
 using Jcf.AnasStore.Application.Features.Roles.GetAllRoles;
 using Jcf.AnasStore.Application.Features.Roles.GetRoleById;
+using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,20 @@ public sealed class RolesController(IQueryDispatcher queryDispatcher) : Controll
     /// Lists all roles registered in the system.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<RoleDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(PagedResponse<RoleDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
         var roles = await queryDispatcher.SendAsync<GetAllRolesQuery, IReadOnlyList<RoleDto>>(
             new GetAllRolesQuery(),
             cancellationToken);
 
-        return Ok(roles);
+        var total = roles.Count;
+        var items = roles
+            .Skip((query.ValidPage - 1) * query.ValidPageSize)
+            .Take(query.ValidPageSize)
+            .ToList();
+
+        return Ok(new PagedResponse<RoleDto>(items, total, query.ValidPage, query.ValidPageSize));
     }
 
     /// <summary>

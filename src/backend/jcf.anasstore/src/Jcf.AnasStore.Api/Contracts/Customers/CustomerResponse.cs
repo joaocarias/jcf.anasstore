@@ -9,6 +9,13 @@ public sealed record CustomerResponse(
     string Phone,
     bool IsWhatsApp,
     Guid AddressUid,
+    string? Place,
+    string? Number,
+    string? Neighborhood,
+    string? Complement,
+    string? ZipCode,
+    string? City,
+    string? State,
     bool IsActive,
     DateTime CreateAt,
     DateTime? UpdateAt);

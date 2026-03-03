@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Api.Contracts.Users;
 using Jcf.AnasStore.Infrastructure.Identity;
 using Jcf.AnasStore.Infrastructure.Security;
@@ -18,20 +19,28 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
     /// Lists all users.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<UserResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(PagedResponse<UserResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
+        var total = await userManager.Users.CountAsync(cancellationToken);
+
         var users = await userManager.Users
             .OrderBy(x => x.Email)
+            .Skip((query.ValidPage - 1) * query.ValidPageSize)
+            .Take(query.ValidPageSize)
             .ToListAsync(cancellationToken);
 
-        var response = new List<UserResponse>(users.Count);
+        var items = new List<UserResponse>(users.Count);
         foreach (var user in users)
         {
-            response.Add(await ToResponseAsync(user));
+            items.Add(await ToResponseAsync(user));
         }
 
-        return Ok(response);
+        return Ok(new PagedResponse<UserResponse>(
+            items,
+            total,
+            query.ValidPage,
+            query.ValidPageSize));
     }
 
     /// <summary>

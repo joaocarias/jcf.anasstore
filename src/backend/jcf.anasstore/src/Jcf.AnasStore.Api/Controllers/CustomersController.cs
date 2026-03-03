@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Api.Contracts.Customers;
 using Jcf.AnasStore.Domain.Entities;
 using Jcf.AnasStore.Infrastructure.Persistence;
@@ -17,17 +18,27 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
     /// Lists all customers ordered by name.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<CustomerResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(PagedResponse<CustomerResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
+        var total = await dbContext.Customers
+            .AsNoTracking()
+            .CountAsync(cancellationToken);
+
         var customers = await dbContext.Customers
             .AsNoTracking()
             .Include(x => x.Genre)
             .Include(x => x.Address)
             .OrderBy(x => x.Name)
+            .Skip((query.ValidPage - 1) * query.ValidPageSize)
+            .Take(query.ValidPageSize)
             .ToListAsync(cancellationToken);
 
-        return Ok(customers.Select(ToResponse).ToList());
+        return Ok(new PagedResponse<CustomerResponse>(
+            customers.Select(ToResponse).ToList(),
+            total,
+            query.ValidPage,
+            query.ValidPageSize));
     }
 
     /// <summary>
@@ -59,37 +70,46 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
         {
             var genre = await dbContext.Genres
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.GenreId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Uid == request.GenreUid, cancellationToken);
             if (genre is null)
             {
-                return BadRequest(new { message = "GenreId is invalid." });
+                return BadRequest(new { message = "GenreUid is invalid." });
             }
 
-            var address = await dbContext.Addresses
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.AddressId, cancellationToken);
-            if (address is null)
+            if (request.Address is null)
             {
-                return BadRequest(new { message = "AddressId is invalid." });
+                return BadRequest(new { message = "Address is required." });
             }
+
+            await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+            var address = new Address(
+                request.Address.Place,
+                request.Address.Number,
+                request.Address.Neighborhood,
+                request.Address.Complement,
+                request.Address.ZipCode,
+                request.Address.City,
+                request.Address.State);
+            address.SetCreateUser(GetCurrentUserId());
+
+            await dbContext.Addresses.AddAsync(address, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             var customer = new Customer(
                 request.Name,
-                request.GenreId,
+                genre.Id,
                 request.BirthDate,
                 request.Phone,
                 request.IsWhatsApp,
-                request.AddressId);
-
-            if (!request.IsActive)
-            {
-                customer.SetActive(false, GetCurrentUserId());
-            }
+                address.Id);
 
             customer.SetCreateUser(GetCurrentUserId());
 
             await dbContext.Customers.AddAsync(customer, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
 
             customer = await dbContext.Customers
                 .AsNoTracking()
@@ -125,37 +145,45 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
 
         try
         {
-            var genreExists = await dbContext.Genres
+            var genre = await dbContext.Genres
                 .AsNoTracking()
-                .AnyAsync(x => x.Id == request.GenreId, cancellationToken);
-            if (!genreExists)
+                .FirstOrDefaultAsync(x => x.Uid == request.GenreUid, cancellationToken);
+            if (genre is null)
             {
-                return BadRequest(new { message = "GenreId is invalid." });
+                return BadRequest(new { message = "GenreUid is invalid." });
             }
 
-            var addressExists = await dbContext.Addresses
-                .AsNoTracking()
-                .AnyAsync(x => x.Id == request.AddressId, cancellationToken);
-            if (!addressExists)
+            if (request.Address is null)
             {
-                return BadRequest(new { message = "AddressId is invalid." });
+                return BadRequest(new { message = "Address is required." });
             }
+
+            customer.Address?.Update(
+                request.Address.Place,
+                request.Address.Number,
+                request.Address.Neighborhood,
+                request.Address.Complement,
+                request.Address.ZipCode,
+                request.Address.City,
+                request.Address.State);
 
             customer.Update(
                 request.Name,
-                request.GenreId,
+                genre.Id,
                 request.BirthDate,
                 request.Phone,
                 request.IsWhatsApp,
-                request.AddressId);
+                customer.AddressId);
 
             if (request.IsActive.HasValue)
             {
                 customer.SetActive(request.IsActive.Value, GetCurrentUserId());
+                customer.Address?.SetActive(request.IsActive.Value, GetCurrentUserId());
             }
             else
             {
                 customer.SetUpdate(GetCurrentUserId());
+                customer.Address?.SetUpdate(GetCurrentUserId());
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -214,6 +242,13 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
             customer.Phone,
             customer.IsWhatsApp,
             customer.Address.Uid,
+            customer.Address.Place,
+            customer.Address.Number,
+            customer.Address.Neighborhood,
+            customer.Address.Complement,
+            customer.Address.ZipCode,
+            customer.Address.City,
+            customer.Address.State,
             customer.IsActive,
             customer.CreateAt,
             customer.UpdateAt);

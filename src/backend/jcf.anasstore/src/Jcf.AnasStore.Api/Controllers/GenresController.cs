@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Api.Contracts.Genres;
 using Jcf.AnasStore.Domain.Entities;
 using Jcf.AnasStore.Infrastructure.Persistence;
@@ -18,15 +19,25 @@ public sealed class GenresController(AppDbContext dbContext) : ControllerBase
     /// Lists all genres.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<GenreResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(PagedResponse<GenreResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
+        var total = await dbContext.Genres
+            .AsNoTracking()
+            .CountAsync(cancellationToken);
+
         var genres = await dbContext.Genres
             .AsNoTracking()
             .OrderBy(x => x.Name)
+            .Skip((query.ValidPage - 1) * query.ValidPageSize)
+            .Take(query.ValidPageSize)
             .ToListAsync(cancellationToken);
 
-        return Ok(genres.Select(ToResponse).ToList());
+        return Ok(new PagedResponse<GenreResponse>(
+            genres.Select(ToResponse).ToList(),
+            total,
+            query.ValidPage,
+            query.ValidPageSize));
     }
 
     /// <summary>

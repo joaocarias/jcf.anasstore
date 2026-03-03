@@ -46,4 +46,22 @@ public sealed class Address : EntityBase
         City = city?.Trim();
         State = state?.Trim();
     }
+
+    public void Update(
+        string? place,
+        string? number,
+        string? neighborhood,
+        string? complement,
+        string? zipCode,
+        string? city,
+        string? state)
+    {
+        Place = place?.Trim();
+        Number = number?.Trim();
+        Neighborhood = neighborhood?.Trim();
+        Complement = complement?.Trim();
+        ZipCode = zipCode?.Trim();
+        City = city?.Trim();
+        State = state?.Trim();
+    }
 }
