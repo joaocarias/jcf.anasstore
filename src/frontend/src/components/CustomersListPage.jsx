@@ -1,4 +1,4 @@
-﻿import { Cake, Eye, Loader2, MessageCircle, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
+﻿import { Cake, Eye, Loader2, MessageCircle, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
@@ -91,6 +91,8 @@ function formatDateTime(value) {
 export default function CustomersListPage({ token }) {
   const [customers, setCustomers] = useState([])
   const [genres, setGenres] = useState([])
+  const [searchNameInput, setSearchNameInput] = useState('')
+  const [searchName, setSearchName] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
   const [totalItems, setTotalItems] = useState(0)
@@ -113,11 +115,26 @@ export default function CustomersListPage({ token }) {
     setErrorMessage('')
 
     try {
-      const response = await fetch(`${API_BASE_URL}/Customers?page=${currentPage}&pageSize=${pageSize}`, {
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        pageSize: String(pageSize),
+      })
+
+      if (searchName.trim().length > 0) {
+        params.set('name', searchName.trim())
+      }
+
+      const response = await fetch(`${API_BASE_URL}/Customers?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
       if (!response.ok) {
+        if (response.status === 403) {
+          setErrorMessage('Você não possui acesso para realizar esta ação.')
+          setCustomers([])
+          setTotalItems(0)
+          return
+        }
         throw new Error('failed')
       }
 
@@ -129,7 +146,7 @@ export default function CustomersListPage({ token }) {
     } finally {
       setIsLoading(false)
     }
-  }, [currentPage, pageSize, token])
+  }, [currentPage, pageSize, searchName, token])
 
   const loadGenres = useCallback(async () => {
     try {
@@ -162,6 +179,11 @@ export default function CustomersListPage({ token }) {
 
   function handleInputChange(field, value) {
     setFormData((current) => ({ ...current, [field]: value }))
+  }
+
+  function handleSearchCustomers() {
+    setCurrentPage(1)
+    setSearchName(searchNameInput.trim())
   }
 
   function handleOpenCreate() {
@@ -261,6 +283,10 @@ export default function CustomersListPage({ token }) {
       })
 
       if (!response.ok) {
+        if (response.status === 403) {
+          setErrorMessage('Você não possui acesso para realizar esta ação.')
+          return
+        }
         throw new Error('failed')
       }
 
@@ -300,6 +326,10 @@ export default function CustomersListPage({ token }) {
       })
 
       if (!response.ok) {
+        if (response.status === 403) {
+          setErrorMessage('Você não possui acesso para realizar esta ação.')
+          return
+        }
         throw new Error('failed')
       }
 
@@ -324,6 +354,10 @@ export default function CustomersListPage({ token }) {
       })
 
       if (!response.ok) {
+        if (response.status === 403) {
+          setViewErrorMessage('Você não possui acesso para realizar esta ação.')
+          return
+        }
         throw new Error('failed')
       }
 
@@ -349,14 +383,37 @@ export default function CustomersListPage({ token }) {
     <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Clientes</h2>
-        <button
-          type="button"
-          onClick={handleOpenCreate}
-          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700"
-        >
-          <Plus size={16} />
-          Adicionar
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            value={searchNameInput}
+            onChange={(event) => setSearchNameInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                handleSearchCustomers()
+              }
+            }}
+            placeholder="Buscar por nome"
+            className="w-52 rounded-xl border border-gray-300 px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+          />
+          <button
+            type="button"
+            onClick={handleSearchCustomers}
+            className="inline-flex items-center gap-2 rounded-xl border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
+          >
+            <Search size={16} />
+            Pesquisar
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700"
+          >
+            <Plus size={16} />
+            Adicionar
+          </button>
+        </div>
       </header>
 
       {isLoading && <p className="text-sm text-gray-500 dark:text-gray-400">Carregando clientes...</p>}
@@ -370,7 +427,7 @@ export default function CustomersListPage({ token }) {
       {!isLoading && !errorMessage && (
         <div className="grid gap-4">
           <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
+            <table className="min-w-full text-left text-xs">
             <thead>
               <tr className="border-b border-gray-100 text-gray-500 dark:border-gray-800 dark:text-gray-400">
                 <th className="py-2 pr-3">Nome</th>
@@ -437,7 +494,7 @@ export default function CustomersListPage({ token }) {
 
               {customers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={6} className="py-3 text-center text-xs text-gray-500 dark:text-gray-400">
                     Nenhum cliente encontrado.
                   </td>
                 </tr>
@@ -445,7 +502,7 @@ export default function CustomersListPage({ token }) {
             </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-300">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-600 dark:border-gray-800 dark:text-gray-300">
             <span>Total: {totalItems} | Página: {currentPage} | Por página: {pageSize}</span>
             <div className="inline-flex items-center gap-2">
               <button
@@ -832,6 +889,7 @@ export default function CustomersListPage({ token }) {
     </section>
   )
 }
+
 
 
 

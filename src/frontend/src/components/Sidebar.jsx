@@ -1,10 +1,14 @@
 import {
   ChevronDown,
+  Factory,
+  House,
   Palette,
   Ruler,
   Settings,
   ShieldCheck,
   Shirt,
+  ShoppingBag,
+  Tags,
   UserCircle2,
   UsersRound,
 } from 'lucide-react'
@@ -64,6 +68,16 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
 
       <nav className="space-y-2">
         <SidebarItem
+          icon={House}
+          label="Home"
+          active={currentPage === 'dashboard'}
+          onClick={() => {
+            onNavigate('dashboard')
+            onClose()
+          }}
+        />
+
+        <SidebarItem
           icon={UsersRound}
           label="Gestao"
           active={expandedMenu === 'gestao'}
@@ -82,8 +96,42 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
                 onClose()
               }}
             />
-            <SidebarSubItem icon={UsersRound} label="Usuarios" onClick={onClose} />
-            <SidebarSubItem icon={ShieldCheck} label="Regras de Acesso" onClick={onClose} />
+            <SidebarSubItem
+              icon={ShoppingBag}
+              label="Produtos"
+              active={currentPage === 'products'}
+              onClick={() => {
+                onNavigate('products')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={Factory}
+              label="Fornecedores"
+              active={currentPage === 'suppliers'}
+              onClick={() => {
+                onNavigate('suppliers')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={UsersRound}
+              label="Usuarios"
+              active={currentPage === 'users'}
+              onClick={() => {
+                onNavigate('users')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={ShieldCheck}
+              label="Regras de Acesso"
+              active={currentPage === 'access-rules'}
+              onClick={() => {
+                onNavigate('access-rules')
+                onClose()
+              }}
+            />
           </div>
         )}
 
@@ -97,9 +145,42 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
         />
         {expandedMenu === 'configuracoes' && (
           <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
-            <SidebarSubItem icon={Palette} label="Cores" onClick={onClose} />
-            <SidebarSubItem icon={Ruler} label="Tamanhos" onClick={onClose} />
-            <SidebarSubItem icon={Shirt} label="Generos" onClick={onClose} />
+            <SidebarSubItem
+              icon={Tags}
+              label="Categorias"
+              active={currentPage === 'categories'}
+              onClick={() => {
+                onNavigate('categories')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={Palette}
+              label="Cores"
+              active={currentPage === 'colors'}
+              onClick={() => {
+                onNavigate('colors')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={Ruler}
+              label="Tamanhos"
+              active={currentPage === 'item-sizes'}
+              onClick={() => {
+                onNavigate('item-sizes')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={Shirt}
+              label="Generos"
+              active={currentPage === 'genres'}
+              onClick={() => {
+                onNavigate('genres')
+                onClose()
+              }}
+            />
           </div>
         )}
       </nav>

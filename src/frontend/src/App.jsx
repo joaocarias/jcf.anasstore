@@ -1,17 +1,37 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { KeyRound, LogIn, Mail, ShieldCheck } from 'lucide-react'
+import AccessRulesPage from './components/AccessRulesPage'
+import CategoriesPage from './components/CategoriesPage'
 import Charts from './components/Charts'
+import ColorsPage from './components/ColorsPage'
 import CustomersListPage from './components/CustomersListPage'
 import DashboardCards from './components/DashboardCards'
+import GenresPage from './components/GenresPage'
 import Header from './components/Header'
+import ItemSizesPage from './components/ItemSizesPage'
+import ProductsPage from './components/ProductsPage'
 import SalesTable from './components/SalesTable'
 import Sidebar from './components/Sidebar'
 import StockTable from './components/StockTable'
+import SuppliersPage from './components/SuppliersPage'
+import UsersListPage from './components/UsersListPage'
 
 const SESSION_KEY = 'anasstore.session'
 const THEME_KEY = 'anasstore.theme'
 const LOGIN_PATH = '/login'
 const DASHBOARD_PATH = '/dashboard'
+const CUSTOMERS_PATH = '/customers'
+const PRODUCTS_PATH = '/products'
+const SUPPLIERS_PATH = '/suppliers'
+const USERS_PATH = '/users'
+const ACCESS_RULES_PATH = '/access-rules'
+const CATEGORIES_PATH = '/categories'
+const COLORS_PATH = '/colors'
+const GENRES_PATH = '/genres'
+const ITEM_SIZES_PATH = '/item-sizes'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const TOKEN_REFRESH_WINDOW_MS = 5 * 60 * 1000
+const TOKEN_REFRESH_CHECK_INTERVAL_MS = 30 * 1000
 
 function readSession() {
   const raw = localStorage.getItem(SESSION_KEY)
@@ -60,6 +80,13 @@ function decodeJwtPayload(token) {
   }
 }
 
+function getTokenExpirationMs(token) {
+  const payload = decodeJwtPayload(token)
+  const exp = payload?.exp
+  if (typeof exp !== 'number') return null
+  return exp * 1000
+}
+
 function getCurrentPath() {
   return window.location.pathname || LOGIN_PATH
 }
@@ -103,7 +130,7 @@ function LoginPage({ onLogin }) {
         return
       }
 
-      if (!response.ok || !payload?.success || !payload?.token) {
+      if (!response.ok || !payload?.success || !payload?.token || !payload?.refreshToken) {
         setErrorMessage('Não foi possível autenticar.')
         return
       }
@@ -113,6 +140,7 @@ function LoginPage({ onLogin }) {
 
       onLogin({
         token: payload.token,
+        refreshToken: payload.refreshToken,
         email,
         displayName,
       })
@@ -135,34 +163,56 @@ function LoginPage({ onLogin }) {
         <form className="form-grid" onSubmit={handleSubmit}>
           <label className="field">
             <span className="field-label">E-mail</span>
-            <input
-              className="field-input"
-              type="email"
-              autoComplete="email"
-              placeholder="voce@anasstore.com.br"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
+            <div className="relative">
+              <Mail
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                className="field-input !pl-10"
+                type="email"
+                autoComplete="email"
+                placeholder="voce@anasstore.com.br"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </div>
           </label>
 
           <label className="field">
             <span className="field-label">Senha</span>
-            <input
-              className="field-input"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Digite sua senha"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
+            <div className="relative">
+              <KeyRound
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                className="field-input !pl-10"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Digite sua senha"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+            </div>
           </label>
 
           {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-          <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? 'Entrando...' : 'Entrar'}
+          <button type="submit" className="login-button inline-flex items-center justify-center gap-2" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <ShieldCheck size={16} />
+                Autenticando...
+              </>
+            ) : (
+              <>
+                <LogIn size={16} />
+                Entrar
+              </>
+            )}
           </button>
         </form>
       </section>
@@ -170,20 +220,35 @@ function LoginPage({ onLogin }) {
   )
 }
 
-function DashboardPage({ session, onLogout, theme, onToggleTheme }) {
+function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, onNavigate }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState('dashboard')
-
-  function handleNavigate(page) {
-    setCurrentPage(page)
-  }
+  const currentPage =
+    currentPath === CUSTOMERS_PATH
+      ? 'customers'
+      : currentPath === PRODUCTS_PATH
+        ? 'products'
+      : currentPath === SUPPLIERS_PATH
+        ? 'suppliers'
+      : currentPath === USERS_PATH
+        ? 'users'
+        : currentPath === ACCESS_RULES_PATH
+          ? 'access-rules'
+          : currentPath === CATEGORIES_PATH
+            ? 'categories'
+          : currentPath === COLORS_PATH
+            ? 'colors'
+            : currentPath === GENRES_PATH
+              ? 'genres'
+              : currentPath === ITEM_SIZES_PATH
+                ? 'item-sizes'
+        : 'dashboard'
 
   return (
     <main className="flex min-h-screen bg-gray-100 dark:bg-gray-950">
       <Sidebar
         mobileOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onNavigate={handleNavigate}
+        onNavigate={onNavigate}
         currentPage={currentPage}
       />
 
@@ -210,6 +275,14 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme }) {
           )}
 
           {currentPage === 'customers' && <CustomersListPage token={session.token} />}
+          {currentPage === 'products' && <ProductsPage token={session.token} />}
+          {currentPage === 'suppliers' && <SuppliersPage token={session.token} />}
+          {currentPage === 'users' && <UsersListPage token={session.token} />}
+          {currentPage === 'access-rules' && <AccessRulesPage token={session.token} />}
+          {currentPage === 'categories' && <CategoriesPage token={session.token} />}
+          {currentPage === 'colors' && <ColorsPage token={session.token} />}
+          {currentPage === 'genres' && <GenresPage token={session.token} />}
+          {currentPage === 'item-sizes' && <ItemSizesPage token={session.token} />}
         </div>
       </div>
     </main>
@@ -220,6 +293,7 @@ function App() {
   const [session, setSession] = useState(() => readSession())
   const [path, setPath] = useState(() => getCurrentPath())
   const [theme, setTheme] = useState(() => readTheme())
+  const refreshInFlightRef = useRef(false)
 
   useEffect(() => {
     applyTheme(theme)
@@ -258,8 +332,88 @@ function App() {
     navigate(LOGIN_PATH, true)
   }
 
+  async function refreshSession(currentSession) {
+    if (!currentSession?.refreshToken) {
+      return null
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/Auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: currentSession.refreshToken }),
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const payload = await response.json()
+      if (!payload?.success || !payload?.token || !payload?.refreshToken) {
+        return null
+      }
+
+      return {
+        ...currentSession,
+        token: payload.token,
+        refreshToken: payload.refreshToken,
+      }
+    } catch {
+      return null
+    }
+  }
+
   function handleToggleTheme() {
     setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
+  }
+
+  function handleNavigatePage(page) {
+    if (page === 'customers') {
+      navigate(CUSTOMERS_PATH)
+      return
+    }
+
+    if (page === 'users') {
+      navigate(USERS_PATH)
+      return
+    }
+
+    if (page === 'products') {
+      navigate(PRODUCTS_PATH)
+      return
+    }
+
+    if (page === 'suppliers') {
+      navigate(SUPPLIERS_PATH)
+      return
+    }
+
+    if (page === 'access-rules') {
+      navigate(ACCESS_RULES_PATH)
+      return
+    }
+
+    if (page === 'categories') {
+      navigate(CATEGORIES_PATH)
+      return
+    }
+
+    if (page === 'colors') {
+      navigate(COLORS_PATH)
+      return
+    }
+
+    if (page === 'genres') {
+      navigate(GENRES_PATH)
+      return
+    }
+
+    if (page === 'item-sizes') {
+      navigate(ITEM_SIZES_PATH)
+      return
+    }
+
+    navigate(DASHBOARD_PATH)
   }
 
   const currentPath = useMemo(() => {
@@ -267,17 +421,101 @@ function App() {
     return path === LOGIN_PATH ? DASHBOARD_PATH : path
   }, [path, session])
 
+  useEffect(() => {
+    if (!session?.token) {
+      return
+    }
+
+    const expirationMs = getTokenExpirationMs(session.token)
+    if (!expirationMs || expirationMs <= Date.now()) {
+      handleLogout()
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      const nextExpirationMs = getTokenExpirationMs(session.token)
+      if (!nextExpirationMs || nextExpirationMs <= Date.now()) {
+        handleLogout()
+      }
+    }, 15 * 1000)
+
+    return () => window.clearInterval(intervalId)
+  }, [session?.token])
+
+  useEffect(() => {
+    if (!session?.token || !session?.refreshToken) {
+      return
+    }
+
+    let cancelled = false
+
+    async function ensureValidAccessToken() {
+      if (refreshInFlightRef.current) {
+        return
+      }
+
+      const expirationMs = getTokenExpirationMs(session.token)
+      if (!expirationMs) {
+        return
+      }
+
+      if (expirationMs - Date.now() > TOKEN_REFRESH_WINDOW_MS) {
+        return
+      }
+
+      refreshInFlightRef.current = true
+      try {
+        const nextSession = await refreshSession(session)
+        if (!nextSession) {
+          if (!cancelled) {
+            handleLogout()
+          }
+          return
+        }
+
+        if (!cancelled) {
+          writeSession(nextSession)
+          setSession(nextSession)
+        }
+      } finally {
+        refreshInFlightRef.current = false
+      }
+    }
+
+    ensureValidAccessToken()
+    const intervalId = window.setInterval(ensureValidAccessToken, TOKEN_REFRESH_CHECK_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
+  }, [session])
+
   if (!session) {
     return <LoginPage onLogin={handleLogin} />
   }
 
-  if (currentPath === DASHBOARD_PATH || currentPath === '/') {
+  if (
+    currentPath === DASHBOARD_PATH ||
+    currentPath === '/' ||
+    currentPath === CUSTOMERS_PATH ||
+    currentPath === PRODUCTS_PATH ||
+    currentPath === SUPPLIERS_PATH ||
+    currentPath === USERS_PATH ||
+    currentPath === ACCESS_RULES_PATH ||
+    currentPath === CATEGORIES_PATH ||
+    currentPath === COLORS_PATH ||
+    currentPath === GENRES_PATH ||
+    currentPath === ITEM_SIZES_PATH
+  ) {
     return (
       <DashboardPage
         session={session}
         onLogout={handleLogout}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        currentPath={currentPath}
+        onNavigate={handleNavigatePage}
       />
     )
   }

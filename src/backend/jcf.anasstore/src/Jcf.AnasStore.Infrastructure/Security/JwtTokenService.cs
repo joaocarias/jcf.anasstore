@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Security.Claims;
 using System.Text;
 using Jcf.AnasStore.Application.Abstractions.Security;
@@ -9,7 +10,7 @@ namespace Jcf.AnasStore.Infrastructure.Security;
 
 public sealed class JwtTokenService(IOptions<JwtSettings> options) : ITokenService
 {
-    public string GenerateToken(AuthenticatedUser user)
+    public string GenerateAccessToken(AuthenticatedUser user)
     {
         var settings = options.Value;
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SigningKey));
@@ -35,5 +36,12 @@ public sealed class JwtTokenService(IOptions<JwtSettings> options) : ITokenServi
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public string GenerateRefreshToken()
+    {
+        Span<byte> randomBytes = stackalloc byte[64];
+        RandomNumberGenerator.Fill(randomBytes);
+        return Convert.ToBase64String(randomBytes);
     }
 }

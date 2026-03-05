@@ -65,7 +65,7 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
     /// </summary>
     [Authorize(Roles = $"{IdentitySeeder.AdminRoleName},{IdentitySeeder.ManagerRoleName}")]
     [HttpPost]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
     {
@@ -73,6 +73,8 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
         {
             return BadRequest(new { message = $"Role '{request.RoleName}' does not exist." });
         }
+
+        var generatedPassword = GenerateInitialPassword(request.Name, DateTime.Now);
 
         var user = new AppUser
         {
@@ -85,7 +87,7 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
             UserCreateId = GetCurrentUserId()
         };
 
-        var createResult = await userManager.CreateAsync(user, request.Password);
+        var createResult = await userManager.CreateAsync(user, generatedPassword);
         if (!createResult.Succeeded)
         {
             return BadRequest(new { errors = createResult.Errors.Select(x => x.Description).ToArray() });
@@ -97,7 +99,11 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
             return BadRequest(new { errors = roleResult.Errors.Select(x => x.Description).ToArray() });
         }
 
-        return CreatedAtAction(nameof(GetByUid), new { uid = user.Uid }, await ToResponseAsync(user));
+        var response = await ToResponseAsync(user);
+        return CreatedAtAction(
+            nameof(GetByUid),
+            new { uid = user.Uid },
+            new CreateUserResponse(response, generatedPassword));
     }
 
     /// <summary>
@@ -204,6 +210,61 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
         }
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Resets a user password using system rule.
+    /// </summary>
+    [Authorize(Roles = $"{IdentitySeeder.AdminRoleName},{IdentitySeeder.ManagerRoleName}")]
+    [HttpPost("{uid:guid}/reset-password")]
+    [ProducesResponseType(typeof(ResetPasswordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromRoute] Guid uid, CancellationToken cancellationToken)
+    {
+        var user = await userManager.Users.FirstOrDefaultAsync(x => x.Uid == uid, cancellationToken);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        var generatedPassword = GenerateResetPassword(user.Name, DateTime.Now);
+        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+        var resetResult = await userManager.ResetPasswordAsync(user, resetToken, generatedPassword);
+        if (!resetResult.Succeeded)
+        {
+            return BadRequest(new { errors = resetResult.Errors.Select(x => x.Description).ToArray() });
+        }
+
+        user.UpdateAt = DateTime.UtcNow;
+        user.UserUpdateId = GetCurrentUserId();
+        var updateResult = await userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            return BadRequest(new { errors = updateResult.Errors.Select(x => x.Description).ToArray() });
+        }
+
+        return Ok(new ResetPasswordResponse(generatedPassword));
+    }
+
+    private static string GenerateInitialPassword(string name, DateTime currentDate)
+    {
+        var firstLetter = GetFirstLetter(name);
+        return $"{firstLetter}ana@{currentDate:MMdd}";
+    }
+
+    private static string GenerateResetPassword(string name, DateTime currentDate)
+    {
+        var firstLetter = GetFirstLetter(name);
+        return $"{firstLetter}Mudar@{currentDate:MMdd}";
+    }
+
+    private static char GetFirstLetter(string name)
+    {
+        var trimmed = name?.Trim();
+        return string.IsNullOrWhiteSpace(trimmed)
+            ? 'A'
+            : char.ToUpperInvariant(trimmed[0]);
     }
 
     private async Task<UserResponse> ToResponseAsync(AppUser user)

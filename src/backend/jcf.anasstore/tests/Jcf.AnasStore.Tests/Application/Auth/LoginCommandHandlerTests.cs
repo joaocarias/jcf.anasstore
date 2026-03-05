@@ -14,6 +14,7 @@ public sealed class LoginCommandHandlerTests
 
         Assert.False(result.Success);
         Assert.Equal(string.Empty, result.Token);
+        Assert.Equal(string.Empty, result.RefreshToken);
     }
 
     [Fact]
@@ -26,6 +27,7 @@ public sealed class LoginCommandHandlerTests
 
         Assert.True(result.Success);
         Assert.Equal("fake-jwt-token", result.Token);
+        Assert.Equal("fake-refresh-token", result.RefreshToken);
     }
 
     private sealed class FakeIdentityService(AuthenticatedUser? user) : IIdentityService
@@ -34,10 +36,26 @@ public sealed class LoginCommandHandlerTests
         {
             return Task.FromResult(user);
         }
+
+        public Task SaveRefreshTokenAsync(long userId, string refreshToken, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<AuthenticatedUser?> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+        {
+            return Task.FromResult<AuthenticatedUser?>(null);
+        }
+
+        public Task RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class FakeTokenService : ITokenService
     {
-        public string GenerateToken(AuthenticatedUser user) => "fake-jwt-token";
+        public string GenerateAccessToken(AuthenticatedUser user) => "fake-jwt-token";
+        public string GenerateRefreshToken() => "fake-refresh-token";
     }
 }

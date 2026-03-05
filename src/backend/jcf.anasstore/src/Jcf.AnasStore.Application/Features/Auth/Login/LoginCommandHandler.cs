@@ -3,7 +3,9 @@ using Jcf.AnasStore.Application.Abstractions.Security;
 
 namespace Jcf.AnasStore.Application.Features.Auth.Login;
 
-public sealed class LoginCommandHandler(IIdentityService identityService, ITokenService tokenService)
+public sealed class LoginCommandHandler(
+    IIdentityService identityService,
+    ITokenService tokenService)
     : ICommandHandler<LoginCommand, LoginResult>
 {
     public async Task<LoginResult> HandleAsync(LoginCommand command, CancellationToken cancellationToken)
@@ -19,7 +21,10 @@ public sealed class LoginCommandHandler(IIdentityService identityService, IToken
             return LoginResult.Fail("Invalid credentials.");
         }
 
-        var token = tokenService.GenerateToken(user);
-        return LoginResult.Ok(token);
+        var token = tokenService.GenerateAccessToken(user);
+        var refreshToken = tokenService.GenerateRefreshToken();
+        await identityService.SaveRefreshTokenAsync(user.UserId, refreshToken, cancellationToken);
+
+        return LoginResult.Ok(token, refreshToken);
     }
 }

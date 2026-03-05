@@ -16,10 +16,12 @@ using Jcf.AnasStore.Infrastructure.Identity;
 using Jcf.AnasStore.Infrastructure.Persistence;
 using Jcf.AnasStore.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace Jcf.AnasStore.Infrastructure;
 
@@ -56,6 +58,35 @@ public static class DependencyInjection
                     ValidAudience = jwt.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
                     ClockSkew = TimeSpan.FromMinutes(1)
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnForbidden = async context =>
+                    {
+                        if (context.Response.HasStarted)
+                        {
+                            return;
+                        }
+
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+                        var payload = JsonSerializer.Serialize(new { message = "Você não possui acesso para realizar esta ação." });
+                        await context.Response.WriteAsync(payload);
+                    },
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+                        if (context.Response.HasStarted)
+                        {
+                            return;
+                        }
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+                        var payload = JsonSerializer.Serialize(new { message = "Usuário não autenticado." });
+                        await context.Response.WriteAsync(payload);
+                    }
                 };
             });
 

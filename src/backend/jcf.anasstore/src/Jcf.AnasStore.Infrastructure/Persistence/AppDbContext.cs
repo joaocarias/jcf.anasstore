@@ -10,11 +10,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<AppUser, AppRole, long>(options), IApplicationDbContext
 {
     public DbSet<Address> Addresses => Set<Address>();
+    public DbSet<Category> Categories => Set<Category>();
     public DbSet<Color> Colors => Set<Color>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Genre> Genres => Set<Genre>();
     public DbSet<ItemSize> ItemSizes => Set<ItemSize>();
+    public DbSet<Product> Products => Set<Product>();
     public DbSet<Sale> Sales => Set<Sale>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -48,11 +51,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         builder.Entity<Address>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Category>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Color>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Customer>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Genre>().HasQueryFilter(x => x.IsActive);
         builder.Entity<ItemSize>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Product>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Sale>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Supplier>().HasQueryFilter(x => x.IsActive);
     }
 
     public Task AddSaleAsync(Sale sale, CancellationToken cancellationToken)

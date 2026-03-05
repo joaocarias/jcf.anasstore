@@ -1,4 +1,5 @@
 using Jcf.AnasStore.Api.Contracts.Auth;
+using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Application.Abstractions.Cqrs;
 using Jcf.AnasStore.Application.Features.Auth.Login;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,10 @@ namespace Jcf.AnasStore.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public sealed class AuthController(ICommandDispatcher commandDispatcher) : ControllerBase
+public sealed class AuthController(
+    ICommandDispatcher commandDispatcher,
+    IIdentityService identityService,
+    ITokenService tokenService) : ControllerBase
 {
     /// <summary>
     /// Realiza login e retorna um token JWT válido para autorização nos demais endpoints.
@@ -33,5 +37,34 @@ public sealed class AuthController(ICommandDispatcher commandDispatcher) : Contr
         }
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Renova o access token utilizando um refresh token vÃ¡lido.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return Unauthorized(LoginResult.Fail("Invalid refresh token."));
+        }
+
+        var user = await identityService.GetUserByRefreshTokenAsync(request.RefreshToken, cancellationToken);
+        if (user is null)
+        {
+            return Unauthorized(LoginResult.Fail("Invalid refresh token."));
+        }
+
+        await identityService.RevokeRefreshTokenAsync(request.RefreshToken, cancellationToken);
+
+        var newRefreshToken = tokenService.GenerateRefreshToken();
+        await identityService.SaveRefreshTokenAsync(user.UserId, newRefreshToken, cancellationToken);
+
+        var accessToken = tokenService.GenerateAccessToken(user);
+        return Ok(LoginResult.Ok(accessToken, newRefreshToken));
     }
 }

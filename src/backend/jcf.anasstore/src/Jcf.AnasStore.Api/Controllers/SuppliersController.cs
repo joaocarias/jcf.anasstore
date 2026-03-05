@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Jcf.AnasStore.Api.Contracts.Common;
-using Jcf.AnasStore.Api.Contracts.Customers;
+using Jcf.AnasStore.Api.Contracts.Suppliers;
 using Jcf.AnasStore.Domain.Entities;
 using Jcf.AnasStore.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
@@ -12,16 +12,16 @@ namespace Jcf.AnasStore.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
+public sealed class SuppliersController(AppDbContext dbContext) : ControllerBase
 {
     /// <summary>
-    /// Lists all customers ordered by name.
+    /// Lists all suppliers ordered by name.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<CustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResponse<SupplierResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] PaginationQuery query, [FromQuery] string? name, CancellationToken cancellationToken)
     {
-        var filteredQuery = dbContext.Customers
+        var filteredQuery = dbContext.Suppliers
             .AsNoTracking()
             .AsQueryable();
 
@@ -31,59 +31,48 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
             filteredQuery = filteredQuery.Where(x => EF.Functions.ILike(x.Name, $"%{search}%"));
         }
 
-        var total = await filteredQuery
-            .CountAsync(cancellationToken);
+        var total = await filteredQuery.CountAsync(cancellationToken);
 
-        var customers = await filteredQuery
-            .Include(x => x.Genre)
+        var suppliers = await filteredQuery
             .Include(x => x.Address)
             .OrderBy(x => x.Name)
             .Skip((query.ValidPage - 1) * query.ValidPageSize)
             .Take(query.ValidPageSize)
             .ToListAsync(cancellationToken);
 
-        return Ok(new PagedResponse<CustomerResponse>(
-            customers.Select(ToResponse).ToList(),
+        return Ok(new PagedResponse<SupplierResponse>(
+            suppliers.Select(ToResponse).ToList(),
             total,
             query.ValidPage,
             query.ValidPageSize));
     }
 
     /// <summary>
-    /// Gets a customer by uid.
+    /// Gets a supplier by uid.
     /// </summary>
     [HttpGet("{uid:guid}")]
-    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SupplierResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUid([FromRoute] Guid uid, CancellationToken cancellationToken)
     {
-        var customer = await dbContext.Customers
+        var supplier = await dbContext.Suppliers
             .AsNoTracking()
-            .Include(x => x.Genre)
             .Include(x => x.Address)
             .FirstOrDefaultAsync(x => x.Uid == uid, cancellationToken);
 
-        return customer is null ? NotFound() : Ok(ToResponse(customer));
+        return supplier is null ? NotFound() : Ok(ToResponse(supplier));
     }
 
     /// <summary>
-    /// Creates a customer.
+    /// Creates a supplier.
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(SupplierResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromBody] CreateSupplierRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var genre = await dbContext.Genres
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Uid == request.GenreUid, cancellationToken);
-            if (genre is null)
-            {
-                return BadRequest(new { message = "GenreUid is invalid." });
-            }
-
             if (request.Address is null)
             {
                 return BadRequest(new { message = "Address is required." });
@@ -104,28 +93,20 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
             await dbContext.Addresses.AddAsync(address, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            var customer = new Customer(
-                request.Name,
-                genre.Id,
-                request.BirthDate,
-                request.Phone,
-                request.IsWhatsApp,
-                address.Id);
+            var supplier = new Supplier(request.Name, request.Phone, request.Email, request.IsWhatsApp, address.Id);
+            supplier.SetCreateUser(GetCurrentUserId());
 
-            customer.SetCreateUser(GetCurrentUserId());
-
-            await dbContext.Customers.AddAsync(customer, cancellationToken);
+            await dbContext.Suppliers.AddAsync(supplier, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
 
-            customer = await dbContext.Customers
+            supplier = await dbContext.Suppliers
                 .AsNoTracking()
-                .Include(x => x.Genre)
                 .Include(x => x.Address)
-                .FirstAsync(x => x.Uid == customer.Uid, cancellationToken);
+                .FirstAsync(x => x.Uid == supplier.Uid, cancellationToken);
 
-            return CreatedAtAction(nameof(GetByUid), new { uid = customer.Uid }, ToResponse(customer));
+            return CreatedAtAction(nameof(GetByUid), new { uid = supplier.Uid }, ToResponse(supplier));
         }
         catch (ArgumentException ex)
         {
@@ -134,39 +115,30 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
     }
 
     /// <summary>
-    /// Updates a customer by uid.
+    /// Updates a supplier by uid.
     /// </summary>
     [HttpPut("{uid:guid}")]
-    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SupplierResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update([FromRoute] Guid uid, [FromBody] UpdateCustomerRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update([FromRoute] Guid uid, [FromBody] UpdateSupplierRequest request, CancellationToken cancellationToken)
     {
-        var customer = await dbContext.Customers
-            .Include(x => x.Genre)
+        var supplier = await dbContext.Suppliers
             .Include(x => x.Address)
             .FirstOrDefaultAsync(x => x.Uid == uid, cancellationToken);
-        if (customer is null)
+        if (supplier is null)
         {
             return NotFound();
         }
 
         try
         {
-            var genre = await dbContext.Genres
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Uid == request.GenreUid, cancellationToken);
-            if (genre is null)
-            {
-                return BadRequest(new { message = "GenreUid is invalid." });
-            }
-
             if (request.Address is null)
             {
                 return BadRequest(new { message = "Address is required." });
             }
 
-            customer.Address?.Update(
+            supplier.Address?.Update(
                 request.Address.Place,
                 request.Address.Number,
                 request.Address.Neighborhood,
@@ -175,34 +147,26 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
                 request.Address.City,
                 request.Address.State);
 
-            customer.Update(
-                request.Name,
-                genre.Id,
-                request.BirthDate,
-                request.Phone,
-                request.IsWhatsApp,
-                customer.AddressId);
-
+            supplier.Update(request.Name, request.Phone, request.Email, request.IsWhatsApp, supplier.AddressId);
             if (request.IsActive.HasValue)
             {
-                customer.SetActive(request.IsActive.Value, GetCurrentUserId());
-                customer.Address?.SetActive(request.IsActive.Value, GetCurrentUserId());
+                supplier.SetActive(request.IsActive.Value, GetCurrentUserId());
+                supplier.Address?.SetActive(request.IsActive.Value, GetCurrentUserId());
             }
             else
             {
-                customer.SetUpdate(GetCurrentUserId());
-                customer.Address?.SetUpdate(GetCurrentUserId());
+                supplier.SetUpdate(GetCurrentUserId());
+                supplier.Address?.SetUpdate(GetCurrentUserId());
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            customer = await dbContext.Customers
+            supplier = await dbContext.Suppliers
                 .AsNoTracking()
-                .Include(x => x.Genre)
                 .Include(x => x.Address)
                 .FirstAsync(x => x.Uid == uid, cancellationToken);
 
-            return Ok(ToResponse(customer));
+            return Ok(ToResponse(supplier));
         }
         catch (ArgumentException ex)
         {
@@ -211,55 +175,49 @@ public sealed class CustomersController(AppDbContext dbContext) : ControllerBase
     }
 
     /// <summary>
-    /// Soft deletes a customer by uid.
+    /// Soft deletes a supplier by uid.
     /// </summary>
     [HttpDelete("{uid:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] Guid uid, CancellationToken cancellationToken)
     {
-        var customer = await dbContext.Customers.FirstOrDefaultAsync(x => x.Uid == uid, cancellationToken);
-        if (customer is null)
+        var supplier = await dbContext.Suppliers.FirstOrDefaultAsync(x => x.Uid == uid, cancellationToken);
+        if (supplier is null)
         {
             return NotFound();
         }
 
-        customer.SetActive(false, GetCurrentUserId());
+        supplier.SetActive(false, GetCurrentUserId());
         await dbContext.SaveChangesAsync(cancellationToken);
         return NoContent();
     }
 
-    private static CustomerResponse ToResponse(Customer customer)
+    private static SupplierResponse ToResponse(Supplier supplier)
     {
-        if (customer.Genre is null)
+        if (supplier.Address is null)
         {
-            throw new InvalidOperationException("Customer genre is not loaded.");
+            throw new InvalidOperationException("Supplier address is not loaded.");
         }
 
-        if (customer.Address is null)
-        {
-            throw new InvalidOperationException("Customer address is not loaded.");
-        }
-
-        return new CustomerResponse(
-            customer.Uid,
-            customer.Name,
-            customer.Genre.Uid,
-            customer.Genre.Name,
-            customer.BirthDate,
-            customer.Phone,
-            customer.IsWhatsApp,
-            customer.Address.Uid,
-            customer.Address.Place,
-            customer.Address.Number,
-            customer.Address.Neighborhood,
-            customer.Address.Complement,
-            customer.Address.ZipCode,
-            customer.Address.City,
-            customer.Address.State,
-            customer.IsActive,
-            customer.CreateAt,
-            customer.UpdateAt);
+        return new SupplierResponse(
+            supplier.Uid,
+            supplier.Name,
+            supplier.Phone,
+            supplier.Email,
+            supplier.IsWhatsApp,
+            supplier.AddressId,
+            supplier.Address.Uid,
+            supplier.Address.Place,
+            supplier.Address.Number,
+            supplier.Address.Neighborhood,
+            supplier.Address.Complement,
+            supplier.Address.ZipCode,
+            supplier.Address.City,
+            supplier.Address.State,
+            supplier.IsActive,
+            supplier.CreateAt,
+            supplier.UpdateAt);
     }
 
     private long? GetCurrentUserId()
