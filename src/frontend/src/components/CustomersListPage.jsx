@@ -1,4 +1,4 @@
-ï»¿import { Cake, Eye, Loader2, MessageCircle, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
+import { Cake, ChevronLeft, ChevronRight, Eye, Loader2, MessageCircle, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
@@ -130,7 +130,7 @@ export default function CustomersListPage({ token }) {
 
       if (!response.ok) {
         if (response.status === 403) {
-          setErrorMessage('VocÃª nÃ£o possui acesso para realizar esta aÃ§Ã£o.')
+          setErrorMessage('Você não possui acesso para realizar esta ação.')
           setCustomers([])
           setTotalItems(0)
           return
@@ -142,7 +142,7 @@ export default function CustomersListPage({ token }) {
       setCustomers(Array.isArray(payload?.items) ? payload.items : [])
       setTotalItems(typeof payload?.total === 'number' ? payload.total : 0)
     } catch {
-      setErrorMessage('NÃ£o foi possÃ­vel carregar a lista de clientes.')
+      setErrorMessage('Não foi possível carregar a lista de clientes.')
     } finally {
       setIsLoading(false)
     }
@@ -250,7 +250,7 @@ export default function CustomersListPage({ token }) {
       })
 
       if (!response.ok) {
-        let message = isEditing ? 'NÃ£o foi possÃ­vel atualizar o cliente.' : 'NÃ£o foi possÃ­vel criar o cliente.'
+        let message = isEditing ? 'Não foi possível atualizar o cliente.' : 'Não foi possível criar o cliente.'
         try {
           const errorPayload = await response.json()
           if (errorPayload?.message) {
@@ -267,7 +267,7 @@ export default function CustomersListPage({ token }) {
       handleCloseCreate()
       await loadCustomers()
     } catch {
-      setSaveErrorMessage(isEditing ? 'NÃ£o foi possÃ­vel atualizar o cliente.' : 'NÃ£o foi possÃ­vel criar o cliente.')
+      setSaveErrorMessage(isEditing ? 'Não foi possível atualizar o cliente.' : 'Não foi possível criar o cliente.')
     } finally {
       setIsSaving(false)
     }
@@ -284,7 +284,7 @@ export default function CustomersListPage({ token }) {
 
       if (!response.ok) {
         if (response.status === 403) {
-          setErrorMessage('VocÃª nÃ£o possui acesso para realizar esta aÃ§Ã£o.')
+          setErrorMessage('Você não possui acesso para realizar esta ação.')
           return
         }
         throw new Error('failed')
@@ -295,7 +295,7 @@ export default function CustomersListPage({ token }) {
       setEditingCustomerUid(customerUid)
       setIsCreateModalOpen(true)
     } catch {
-      setErrorMessage('NÃ£o foi possÃ­vel carregar os dados para ediÃ§Ã£o.')
+      setErrorMessage('Não foi possível carregar os dados para edição.')
     }
   }
 
@@ -327,7 +327,7 @@ export default function CustomersListPage({ token }) {
 
       if (!response.ok) {
         if (response.status === 403) {
-          setErrorMessage('VocÃª nÃ£o possui acesso para realizar esta aÃ§Ã£o.')
+          setErrorMessage('Você não possui acesso para realizar esta ação.')
           return
         }
         throw new Error('failed')
@@ -336,7 +336,7 @@ export default function CustomersListPage({ token }) {
       await loadCustomers()
       setCustomerPendingDelete(null)
     } catch {
-      setErrorMessage('NÃ£o foi possÃ­vel excluir o cliente.')
+      setErrorMessage('Não foi possível excluir o cliente.')
     } finally {
       setDeletingCustomerUid(null)
     }
@@ -355,7 +355,7 @@ export default function CustomersListPage({ token }) {
 
       if (!response.ok) {
         if (response.status === 403) {
-          setViewErrorMessage('VocÃª nÃ£o possui acesso para realizar esta aÃ§Ã£o.')
+          setViewErrorMessage('Você não possui acesso para realizar esta ação.')
           return
         }
         throw new Error('failed')
@@ -364,7 +364,7 @@ export default function CustomersListPage({ token }) {
       const payload = await response.json()
       setViewCustomer(payload)
     } catch {
-      setViewErrorMessage('NÃ£o foi possÃ­vel carregar os dados do cliente.')
+      setViewErrorMessage('Não foi possível carregar os dados do cliente.')
     } finally {
       setIsViewLoading(false)
     }
@@ -431,7 +431,7 @@ export default function CustomersListPage({ token }) {
             <thead>
               <tr className="border-b border-gray-100 text-gray-500 dark:border-gray-800 dark:text-gray-400">
                 <th className="py-2 pr-3">Nome</th>
-                <th className="py-2 pr-3">GÃªnero</th>
+                <th className="py-2 pr-3">Gênero</th>
                 <th className="py-2 pr-3">Data de Nascimento</th>
                 <th className="py-2 pr-3">Telefone</th>
                 <th className="py-2 pr-3">Cidade</th>
@@ -503,24 +503,20 @@ export default function CustomersListPage({ token }) {
             </table>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-600 dark:border-gray-800 dark:text-gray-300">
-            <span>Total: {totalItems} | PÃ¡gina: {currentPage} | Por pÃ¡gina: {pageSize}</span>
+            <span>Total: {totalItems} | Página: {currentPage} | Por página: {pageSize}</span>
             <div className="inline-flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setCurrentPage((value) => Math.max(1, value - 1))}
                 disabled={currentPage <= 1}
                 className="rounded-lg border border-gray-300 px-3 py-1.5 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-              >
-                Anterior
-              </button>
+              ><span className="inline-flex items-center gap-2"><ChevronLeft size={14} /> Anterior</span></button>
               <button
                 type="button"
                 onClick={() => setCurrentPage((value) => Math.min(totalPages, value + 1))}
                 disabled={currentPage >= totalPages}
                 className="rounded-lg border border-gray-300 px-3 py-1.5 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-              >
-                PrÃ³xima
-              </button>
+              ><span className="inline-flex items-center gap-2">Próxima <ChevronRight size={14} /></span></button>
             </div>
           </div>
         </div>
@@ -549,7 +545,7 @@ export default function CustomersListPage({ token }) {
                 </label>
 
                 <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                  GÃªnero
+                  Gênero
                   <select
                     value={formData.genreUid}
                     onChange={(event) => handleInputChange('genreUid', event.target.value)}
@@ -594,13 +590,13 @@ export default function CustomersListPage({ token }) {
                     checked={formData.isWhatsApp}
                     onChange={(event) => handleInputChange('isWhatsApp', event.target.checked)}
                   />
-                  Ã‰ WhatsApp
+                  É WhatsApp
                 </label>
               </div>
 
               <div className="mt-1 border-t border-gray-200 pt-4 dark:border-gray-800">
                 <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  EndereÃ§o
+                  Endereço
                 </h4>
 
                 <div className="grid gap-3 md:grid-cols-3">
@@ -615,7 +611,7 @@ export default function CustomersListPage({ token }) {
                   </label>
 
                   <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                    NÃºmero
+                    Número
                     <input
                       type="text"
                       value={formData.number}
@@ -677,29 +673,29 @@ export default function CustomersListPage({ token }) {
                     >
                       <option value="AC">Acre</option>
                       <option value="AL">Alagoas</option>
-                      <option value="AP">AmapÃ¡</option>
+                      <option value="AP">Amapá</option>
                       <option value="AM">Amazonas</option>
                       <option value="BA">Bahia</option>
-                      <option value="CE">CearÃ¡</option>
+                      <option value="CE">Ceará</option>
                       <option value="DF">Distrito Federal</option>
-                      <option value="ES">EspÃ­rito Santo</option>
-                      <option value="GO">GoiÃ¡s</option>
-                      <option value="MA">MaranhÃ£o</option>
+                      <option value="ES">Espírito Santo</option>
+                      <option value="GO">Goiás</option>
+                      <option value="MA">Maranhão</option>
                       <option value="MT">Mato Grosso</option>
                       <option value="MS">Mato Grosso do Sul</option>
                       <option value="MG">Minas Gerais</option>
-                      <option value="PA">ParÃ¡</option>
-                      <option value="PB">ParaÃ­ba</option>
-                      <option value="PR">ParanÃ¡</option>
+                      <option value="PA">Pará</option>
+                      <option value="PB">Paraíba</option>
+                      <option value="PR">Paraná</option>
                       <option value="PE">Pernambuco</option>
-                      <option value="PI">PiauÃ­</option>
+                      <option value="PI">Piauí</option>
                       <option value="RJ">Rio de Janeiro</option>
                       <option value="RN">Rio Grande do Norte</option>
                       <option value="RS">Rio Grande do Sul</option>
-                      <option value="RO">RondÃ´nia</option>
+                      <option value="RO">Rondônia</option>
                       <option value="RR">Roraima</option>
                       <option value="SC">Santa Catarina</option>
-                      <option value="SP">SÃ£o Paulo</option>
+                      <option value="SP">São Paulo</option>
                       <option value="SE">Sergipe</option>
                       <option value="TO">Tocantins</option>
                       <option value="EX">Estrangeiro</option>
@@ -743,12 +739,12 @@ export default function CustomersListPage({ token }) {
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Detalhes do Cliente</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                VisualizaÃ§Ã£o completa dos dados do cliente.
+                Visualização completa dos dados do cliente.
               </p>
             </header>
 
             {isViewLoading && (
-              <p className="text-sm text-gray-500 dark:text-gray-400">Carregando informaÃ§Ãµes...</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Carregando informações...</p>
             )}
 
             {!isViewLoading && viewErrorMessage && (
@@ -769,7 +765,7 @@ export default function CustomersListPage({ token }) {
                       <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{viewCustomer.name}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">GÃªnero</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Gênero</p>
                       <p className="text-sm text-gray-700 dark:text-gray-300">{viewCustomer.genreName}</p>
                     </div>
                     <div>
@@ -788,7 +784,7 @@ export default function CustomersListPage({ token }) {
 
                 <section className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
                   <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    EndereÃ§o
+                    Endereço
                   </h4>
                   <div className="grid gap-3 md:grid-cols-2">
                     <div>
@@ -796,7 +792,7 @@ export default function CustomersListPage({ token }) {
                       <p className="text-sm text-gray-700 dark:text-gray-300">{viewCustomer.place || '-'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">NÃºmero</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Número</p>
                       <p className="text-sm text-gray-700 dark:text-gray-300">{viewCustomer.number || '-'}</p>
                     </div>
                     <div>
@@ -857,7 +853,7 @@ export default function CustomersListPage({ token }) {
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
           <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar exclusÃ£o</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar exclusão</h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                 Deseja realmente excluir o cliente <strong>{customerPendingDelete.name}</strong>?
               </p>
@@ -889,6 +885,7 @@ export default function CustomersListPage({ token }) {
     </section>
   )
 }
+
 
 
 

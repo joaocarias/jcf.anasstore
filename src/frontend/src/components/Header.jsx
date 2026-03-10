@@ -15,7 +15,7 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
           <Menu size={18} />
         </button>
 
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Ana&apos;s Store</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Ana&apos;s Store - Conforto Íntimo</p>
         <h1 className="hidden text-lg font-bold text-gray-900 dark:text-gray-100 sm:block">Dashboard Financeiro</h1>
       </div>
 

@@ -69,6 +69,11 @@ static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
     await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await dbContext.Database.MigrateAsync();
+    await dbContext.Database.ExecuteSqlRawAsync(
+        """
+        drop index if exists "IX_product_variations_code";
+        drop index if exists "IX_product_variations_product_id_color_id_item_size_id";
+        """);
 
     var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
     await identitySeeder.SeedAsync(CancellationToken.None);
@@ -82,3 +87,4 @@ static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
     var colorSeeder = scope.ServiceProvider.GetRequiredService<ColorSeeder>();
     await colorSeeder.SeedAsync(CancellationToken.None);
 }
+

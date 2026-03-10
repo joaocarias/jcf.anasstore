@@ -1,5 +1,6 @@
 import {
   ChevronDown,
+  CreditCard,
   Factory,
   House,
   Palette,
@@ -62,7 +63,7 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
   return (
     <>
       <div className="mb-8 border-b border-gray-200 pb-4 dark:border-gray-800">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Ana&apos;s Store</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Ana&apos;s Store - Conforto Íntimo</p>
         <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">Controle de Vendas</h2>
       </div>
 
@@ -160,6 +161,15 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
               active={currentPage === 'colors'}
               onClick={() => {
                 onNavigate('colors')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={CreditCard}
+              label="Formas de Pagamento"
+              active={currentPage === 'payment-methods'}
+              onClick={() => {
+                onNavigate('payment-methods')
                 onClose()
               }}
             />

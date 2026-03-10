@@ -5,10 +5,6 @@ namespace Jcf.AnasStore.Domain.Entities;
 public sealed class Product : EntityBase
 {
     [Required]
-    [StringLength(50)]
-    public string Code { get; private set; } = string.Empty;
-
-    [Required]
     [StringLength(200)]
     public string Name { get; private set; } = string.Empty;
 
@@ -25,15 +21,11 @@ public sealed class Product : EntityBase
     public long CategoryId { get; private set; }
     public Category? Category { get; private set; }
 
-    public ICollection<Color> Colors { get; private set; } = [];
-    public ICollection<ItemSize> ItemSizes { get; private set; } = [];
-
     private Product()
     {
     }
 
     public Product(
-        string code,
         string name,
         string description,
         long supplierId,
@@ -41,11 +33,10 @@ public sealed class Product : EntityBase
         decimal salePrice,
         long categoryId)
     {
-        SetValues(code, name, description, supplierId, purchasePrice, salePrice, categoryId);
+        SetValues(name, description, supplierId, purchasePrice, salePrice, categoryId);
     }
 
     public void Update(
-        string code,
         string name,
         string description,
         long supplierId,
@@ -53,21 +44,10 @@ public sealed class Product : EntityBase
         decimal salePrice,
         long categoryId)
     {
-        SetValues(code, name, description, supplierId, purchasePrice, salePrice, categoryId);
-    }
-
-    public void SetColors(IReadOnlyCollection<Color> colors)
-    {
-        Colors = colors.ToList();
-    }
-
-    public void SetItemSizes(IReadOnlyCollection<ItemSize> itemSizes)
-    {
-        ItemSizes = itemSizes.ToList();
+        SetValues(name, description, supplierId, purchasePrice, salePrice, categoryId);
     }
 
     private void SetValues(
-        string code,
         string name,
         string description,
         long supplierId,
@@ -75,11 +55,6 @@ public sealed class Product : EntityBase
         decimal salePrice,
         long categoryId)
     {
-        if (string.IsNullOrWhiteSpace(code))
-        {
-            throw new ArgumentException("Code is required.", nameof(code));
-        }
-
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentException("Name is required.", nameof(name));
@@ -110,7 +85,6 @@ public sealed class Product : EntityBase
             throw new ArgumentException("CategoryId is required.", nameof(categoryId));
         }
 
-        Code = code.Trim();
         Name = name.Trim();
         Description = description.Trim();
         SupplierId = supplierId;

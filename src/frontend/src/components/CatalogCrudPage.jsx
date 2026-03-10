@@ -1,4 +1,4 @@
-import { Loader2, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
@@ -286,7 +286,10 @@ export default function CatalogCrudPage({
                 disabled={currentPage <= 1}
                 className="rounded-lg border border-gray-300 px-3 py-1.5 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
               >
-                Anterior
+                <span className="inline-flex items-center gap-2">
+                  <ChevronLeft size={14} />
+                  Anterior
+                </span>
               </button>
               <button
                 type="button"
@@ -294,7 +297,10 @@ export default function CatalogCrudPage({
                 disabled={currentPage >= totalPages}
                 className="rounded-lg border border-gray-300 px-3 py-1.5 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
               >
-                Próxima
+                <span className="inline-flex items-center gap-2">
+                  Próxima
+                  <ChevronRight size={14} />
+                </span>
               </button>
             </div>
           </div>

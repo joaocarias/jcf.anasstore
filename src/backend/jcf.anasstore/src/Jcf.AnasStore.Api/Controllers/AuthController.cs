@@ -40,7 +40,7 @@ public sealed class AuthController(
     }
 
     /// <summary>
-    /// Renova o access token utilizando um refresh token vÃ¡lido.
+    /// Renova o access token utilizando um refresh token válido.
     /// </summary>
     [AllowAnonymous]
     [HttpPost("refresh")]

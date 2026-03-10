@@ -101,3 +101,4 @@ Thumbs.db
 **/docker-compose.*.yml
 **/Dockerfile.*
 .dockerignore
+/.dotnet/.dotnet

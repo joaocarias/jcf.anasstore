@@ -9,6 +9,7 @@ import DashboardCards from './components/DashboardCards'
 import GenresPage from './components/GenresPage'
 import Header from './components/Header'
 import ItemSizesPage from './components/ItemSizesPage'
+import PaymentMethodsPage from './components/PaymentMethodsPage'
 import ProductsPage from './components/ProductsPage'
 import SalesTable from './components/SalesTable'
 import Sidebar from './components/Sidebar'
@@ -29,6 +30,7 @@ const CATEGORIES_PATH = '/categories'
 const COLORS_PATH = '/colors'
 const GENRES_PATH = '/genres'
 const ITEM_SIZES_PATH = '/item-sizes'
+const PAYMENT_METHODS_PATH = '/payment-methods'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 const TOKEN_REFRESH_WINDOW_MS = 5 * 60 * 1000
 const TOKEN_REFRESH_CHECK_INTERVAL_MS = 30 * 1000
@@ -155,8 +157,8 @@ function LoginPage({ onLogin }) {
     <main className="login-shell">
       <section className="login-card">
         <header className="title-block">
-          <p className="brand-tag">Ana&apos;s Store</p>
-          <h1>Acesso ao sistema de vendas</h1>
+          <p className="brand-tag">Ana&apos;s Store - Conforto Íntimo</p>
+          <h1>Painel de vendas</h1>
           <p>Entre com seu e-mail e senha para abrir o painel de controle.</p>
         </header>
 
@@ -235,12 +237,14 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
           ? 'access-rules'
           : currentPath === CATEGORIES_PATH
             ? 'categories'
-          : currentPath === COLORS_PATH
-            ? 'colors'
-            : currentPath === GENRES_PATH
-              ? 'genres'
-              : currentPath === ITEM_SIZES_PATH
-                ? 'item-sizes'
+      : currentPath === COLORS_PATH
+        ? 'colors'
+        : currentPath === GENRES_PATH
+          ? 'genres'
+          : currentPath === ITEM_SIZES_PATH
+            ? 'item-sizes'
+            : currentPath === PAYMENT_METHODS_PATH
+              ? 'payment-methods'
         : 'dashboard'
 
   return (
@@ -283,6 +287,7 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
           {currentPage === 'colors' && <ColorsPage token={session.token} />}
           {currentPage === 'genres' && <GenresPage token={session.token} />}
           {currentPage === 'item-sizes' && <ItemSizesPage token={session.token} />}
+          {currentPage === 'payment-methods' && <PaymentMethodsPage token={session.token} />}
         </div>
       </div>
     </main>
@@ -319,6 +324,32 @@ function App() {
       navigate(DASHBOARD_PATH, true)
     }
   }, [path, session])
+
+  useEffect(() => {
+    if (!session) {
+      return
+    }
+
+    const originalFetch = window.fetch.bind(window)
+
+    window.fetch = async (...args) => {
+      try {
+        const response = await originalFetch(...args)
+        if (response.status === 401) {
+          handleLogout()
+        }
+
+        return response
+      } catch (error) {
+        handleLogout()
+        throw error
+      }
+    }
+
+    return () => {
+      window.fetch = originalFetch
+    }
+  }, [session])
 
   function handleLogin(nextSession) {
     writeSession(nextSession)
@@ -410,6 +441,11 @@ function App() {
 
     if (page === 'item-sizes') {
       navigate(ITEM_SIZES_PATH)
+      return
+    }
+
+    if (page === 'payment-methods') {
+      navigate(PAYMENT_METHODS_PATH)
       return
     }
 

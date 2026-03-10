@@ -15,8 +15,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Genre> Genres => Set<Genre>();
     public DbSet<ItemSize> ItemSizes => Set<ItemSize>();
+    public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductVariation> ProductVariations => Set<ProductVariation>();
     public DbSet<Sale> Sales => Set<Sale>();
+    public DbSet<Stock> Stocks => Set<Stock>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -56,8 +59,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<Customer>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Genre>().HasQueryFilter(x => x.IsActive);
         builder.Entity<ItemSize>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<PaymentMethod>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Product>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<ProductVariation>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Sale>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Stock>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Supplier>().HasQueryFilter(x => x.IsActive);
     }
 

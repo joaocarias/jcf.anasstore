@@ -4,6 +4,18 @@ using Jcf.AnasStore.Application.Abstractions.Data;
 using Jcf.AnasStore.Application.Abstractions.Persistence;
 using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Application.Features.Auth.Login;
+using Jcf.AnasStore.Application.Features.PaymentMethods.Common;
+using Jcf.AnasStore.Application.Features.PaymentMethods.CreatePaymentMethod;
+using Jcf.AnasStore.Application.Features.PaymentMethods.DeletePaymentMethod;
+using Jcf.AnasStore.Application.Features.PaymentMethods.GetPaymentMethodById;
+using Jcf.AnasStore.Application.Features.PaymentMethods.GetPaymentMethods;
+using Jcf.AnasStore.Application.Features.PaymentMethods.UpdatePaymentMethod;
+using Jcf.AnasStore.Application.Features.Products.Common;
+using Jcf.AnasStore.Application.Features.Products.GetProductById;
+using Jcf.AnasStore.Application.Features.Products.GetProducts;
+using Jcf.AnasStore.Application.Features.ProductVariations.Common;
+using Jcf.AnasStore.Application.Features.ProductVariations.GetProductVariationById;
+using Jcf.AnasStore.Application.Features.ProductVariations.GetProductVariations;
 using Jcf.AnasStore.Application.Features.Roles.Common;
 using Jcf.AnasStore.Application.Features.Roles.GetAllRoles;
 using Jcf.AnasStore.Application.Features.Roles.GetRoleById;
@@ -93,8 +105,12 @@ public static class DependencyInjection
         services.AddAuthorization();
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        services.AddScoped<IPaymentMethodsRepository, PaymentMethodsRepository>();
         services.AddScoped<ISalesReadRepository>(_ => new SalesReadRepository(connectionString));
         services.AddScoped<IRolesReadRepository>(_ => new RolesReadRepository(connectionString));
+        services.AddScoped<IProductsReadRepository>(_ => new ProductsReadRepository(connectionString));
+        services.AddScoped<IProductVariationsReadRepository>(_ => new ProductVariationsReadRepository(connectionString));
+        services.AddScoped<IPaymentMethodsReadRepository>(_ => new PaymentMethodsReadRepository(connectionString));
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IdentitySeeder>();
@@ -106,9 +122,18 @@ public static class DependencyInjection
         services.AddScoped<IQueryDispatcher, QueryDispatcher>();
         services.AddScoped<ICommandHandler<LoginCommand, LoginResult>, LoginCommandHandler>();
         services.AddScoped<ICommandHandler<CreateSaleCommand, Guid>, CreateSaleCommandHandler>();
+        services.AddScoped<ICommandHandler<CreatePaymentMethodCommand, PaymentMethodReadDto>, CreatePaymentMethodCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdatePaymentMethodCommand, PaymentMethodReadDto?>, UpdatePaymentMethodCommandHandler>();
+        services.AddScoped<ICommandHandler<DeletePaymentMethodCommand, bool>, DeletePaymentMethodCommandHandler>();
         services.AddScoped<IQueryHandler<GetAllRolesQuery, IReadOnlyList<RoleDto>>, GetAllRolesQueryHandler>();
         services.AddScoped<IQueryHandler<GetRoleByIdQuery, RoleDto?>, GetRoleByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetRecentSalesQuery, IReadOnlyList<SaleSummaryDto>>, GetRecentSalesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetProductsQuery, PagedReadResult<ProductReadDto>>, GetProductsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetProductByIdQuery, ProductReadDto?>, GetProductByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetProductVariationsQuery, PagedReadResult<ProductVariationReadDto>>, GetProductVariationsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetProductVariationByIdQuery, ProductVariationReadDto?>, GetProductVariationByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPaymentMethodsQuery, PagedReadResult<PaymentMethodReadDto>>, GetPaymentMethodsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPaymentMethodByIdQuery, PaymentMethodReadDto?>, GetPaymentMethodByIdQueryHandler>();
 
         return services;
     }
