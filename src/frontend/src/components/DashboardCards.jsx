@@ -1,36 +1,33 @@
-import { Boxes, DollarSign, ShoppingCart, Wallet } from 'lucide-react'
-import { dailySales, monthlyExpenses, monthlyRevenue, stockItems } from '../data/dashboardData'
+import { Boxes, DollarSign, ShoppingCart } from 'lucide-react'
 
-const cards = [
-  {
-    title: 'Faturamento do Mes',
-    value: monthlyRevenue,
-    subtitle: 'Comparativo de receita consolidada',
-    icon: DollarSign,
-  },
-  {
-    title: 'Produtos em Estoque',
-    value: stockItems,
-    subtitle: 'Itens disponiveis no inventario',
-    icon: Boxes,
-  },
-  {
-    title: 'Vendas do Dia',
-    value: dailySales,
-    subtitle: 'Pedidos fechados hoje',
-    icon: ShoppingCart,
-  },
-  {
-    title: 'Despesas do Mes',
-    value: monthlyExpenses,
-    subtitle: 'Custos fixos e variaveis',
-    icon: Wallet,
-  },
-]
+function formatCurrency(value) {
+  return Number(value ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
 
-export default function DashboardCards() {
+export default function DashboardCards({ summary, isLoading }) {
+  const cards = [
+    {
+      title: 'Entradas do Dia',
+      value: isLoading ? '...' : formatCurrency(summary?.dailyRevenue),
+      subtitle: 'Total recebido hoje',
+      icon: DollarSign,
+    },
+    {
+      title: 'Vendas do Dia',
+      value: isLoading ? '...' : `${summary?.dailySales ?? 0}`,
+      subtitle: 'Pedidos fechados hoje',
+      icon: ShoppingCart,
+    },
+    {
+      title: 'Itens em Estoque',
+      value: isLoading ? '...' : `${summary?.stockItems ?? 0}`,
+      subtitle: 'Quantidade total em estoque',
+      icon: Boxes,
+    },
+  ]
+
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => {
         const Icon = card.icon
         return (

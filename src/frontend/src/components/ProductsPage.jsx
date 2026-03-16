@@ -481,8 +481,12 @@ export default function ProductsPage({ token }) {
         return
       }
 
+      const createdOrUpdated = await response.json()
       handleCloseForm()
       await loadProducts()
+      if (!isEditing && createdOrUpdated?.uid) {
+        handleOpenViewByTab(createdOrUpdated, 'variations')
+      }
     } catch {
       setSaveErrorMessage(isEditing ? 'Nao foi possivel atualizar o produto.' : 'Nao foi possivel criar o produto.')
     } finally {
@@ -812,9 +816,15 @@ export default function ProductsPage({ token }) {
         return
       }
 
+      const createdVariation = await response.json()
       setVariationFormData(EMPTY_VARIATION_FORM)
       await loadProductVariations(viewingProduct.uid)
       await loadProducts()
+      if (createdVariation?.uid) {
+        setPendingStockVariation(createdVariation)
+        setStockFormQuantity(String(Number(createdVariation.stockQuantity ?? 0)))
+        setStockErrorMessage('')
+      }
     } catch {
       setVariationsErrorMessage('Nao foi possivel criar a variacao do produto.')
     } finally {
@@ -1330,10 +1340,11 @@ export default function ProductsPage({ token }) {
                     <button
                       type="button"
                       onClick={handleOpenQuickSupplier}
-                      className="inline-flex items-center gap-1 rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
+                      aria-label="Adicionar fornecedor"
+                      title="Adicionar fornecedor"
+                      className="inline-flex items-center justify-center rounded-lg border border-blue-600 p-2 text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
                     >
                       <Plus size={14} />
-                      Fornecedor
                     </button>
                   </div>
                 </label>
@@ -1357,10 +1368,11 @@ export default function ProductsPage({ token }) {
                     <button
                       type="button"
                       onClick={handleOpenQuickCategory}
-                      className="inline-flex items-center gap-1 rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
+                      aria-label="Adicionar categoria"
+                      title="Adicionar categoria"
+                      className="inline-flex items-center justify-center rounded-lg border border-blue-600 p-2 text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
                     >
                       <Plus size={14} />
-                      Adicionar
                     </button>
                   </div>
                 </label>

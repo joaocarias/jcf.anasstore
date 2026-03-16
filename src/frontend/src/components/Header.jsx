@@ -1,8 +1,15 @@
 import { ChevronDown, LogOut, Menu, Moon, Sun } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-export default function Header({ session, onLogout, theme, onToggleTheme, onToggleSidebar }) {
+export default function Header({ session, onLogout, theme, onToggleTheme, onToggleSidebar, onNavigate }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const firstName = useMemo(() => {
+    const name = session?.displayName || session?.email || ''
+    const trimmed = name.trim();
+    const [first] = trimmed.split(' ')
+    const fallback = trimmed.includes('@') ? trimmed.split('@')[0] : trimmed;
+    return first || fallback || 'Usuario'
+  }, [session])
 
   return (
     <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-900 sm:px-6">
@@ -15,8 +22,8 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
           <Menu size={18} />
         </button>
 
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Ana&apos;s Store - Conforto Íntimo</p>
-        <h1 className="hidden text-lg font-bold text-gray-900 dark:text-gray-100 sm:block">Dashboard Financeiro</h1>
+        <div />
+
       </div>
 
       <div className="relative flex items-center gap-2">
@@ -33,16 +40,26 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
           onClick={() => setIsMenuOpen((current) => !current)}
           className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-200 hover:border-blue-600 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-500 dark:hover:text-blue-400 sm:px-4"
         >
-          {session.displayName}
+          {"Ol\u00e1, "}{firstName}
           <ChevronDown size={16} />
         </button>
 
         {isMenuOpen && (
           <div className="absolute right-0 top-12 w-48 rounded-xl border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800">
-            <button type="button" className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate?.("profile")
+                setIsMenuOpen(false)
+              }}
+              className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
               Perfil
             </button>
-            <button type="button" className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+            <button
+              type="button"
+              className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
               Trocar Senha
             </button>
             <button

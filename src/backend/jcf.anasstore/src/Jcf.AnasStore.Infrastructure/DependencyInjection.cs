@@ -4,6 +4,8 @@ using Jcf.AnasStore.Application.Abstractions.Data;
 using Jcf.AnasStore.Application.Abstractions.Persistence;
 using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Application.Features.Auth.Login;
+using Jcf.AnasStore.Application.Features.Dashboard.Common;
+using Jcf.AnasStore.Application.Features.Dashboard.GetDashboardSummary;
 using Jcf.AnasStore.Application.Features.PaymentMethods.Common;
 using Jcf.AnasStore.Application.Features.PaymentMethods.CreatePaymentMethod;
 using Jcf.AnasStore.Application.Features.PaymentMethods.DeletePaymentMethod;
@@ -21,6 +23,8 @@ using Jcf.AnasStore.Application.Features.Roles.GetAllRoles;
 using Jcf.AnasStore.Application.Features.Roles.GetRoleById;
 using Jcf.AnasStore.Application.Features.Sales.Common;
 using Jcf.AnasStore.Application.Features.Sales.CreateSale;
+using Jcf.AnasStore.Application.Features.Sales.GetSaleById;
+using Jcf.AnasStore.Application.Features.Sales.GetSalesHistory;
 using Jcf.AnasStore.Application.Features.Sales.GetRecentSales;
 using Jcf.AnasStore.Infrastructure.Cqrs;
 using Jcf.AnasStore.Infrastructure.Data;
@@ -34,6 +38,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
 
 namespace Jcf.AnasStore.Infrastructure;
 
@@ -51,6 +56,7 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
             })
             .AddRoles<AppRole>()
+            .AddTokenProvider<DataProtectorTokenProvider<AppUser>>(TokenOptions.DefaultProvider)
             .AddEntityFrameworkStores<AppDbContext>();
 
         var jwtSection = configuration.GetSection(JwtSettings.SectionName);
@@ -105,8 +111,10 @@ public static class DependencyInjection
         services.AddAuthorization();
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        services.AddScoped<ISalesRepository, SalesRepository>();
         services.AddScoped<IPaymentMethodsRepository, PaymentMethodsRepository>();
         services.AddScoped<ISalesReadRepository>(_ => new SalesReadRepository(connectionString));
+        services.AddScoped<IDashboardReadRepository>(_ => new DashboardReadRepository(connectionString));
         services.AddScoped<IRolesReadRepository>(_ => new RolesReadRepository(connectionString));
         services.AddScoped<IProductsReadRepository>(_ => new ProductsReadRepository(connectionString));
         services.AddScoped<IProductVariationsReadRepository>(_ => new ProductVariationsReadRepository(connectionString));
@@ -128,6 +136,9 @@ public static class DependencyInjection
         services.AddScoped<IQueryHandler<GetAllRolesQuery, IReadOnlyList<RoleDto>>, GetAllRolesQueryHandler>();
         services.AddScoped<IQueryHandler<GetRoleByIdQuery, RoleDto?>, GetRoleByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetRecentSalesQuery, IReadOnlyList<SaleSummaryDto>>, GetRecentSalesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetSaleByIdQuery, SaleDetailDto?>, GetSaleByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetSalesHistoryQuery, PagedReadResult<SaleSummaryDto>>, GetSalesHistoryQueryHandler>();
+        services.AddScoped<IQueryHandler<GetDashboardSummaryQuery, DashboardSummaryDto>, GetDashboardSummaryQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductsQuery, PagedReadResult<ProductReadDto>>, GetProductsQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductByIdQuery, ProductReadDto?>, GetProductByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductVariationsQuery, PagedReadResult<ProductVariationReadDto>>, GetProductVariationsQueryHandler>();

@@ -2,8 +2,11 @@ import {
   ChevronDown,
   CreditCard,
   Factory,
+  History,
   House,
   Palette,
+  PlusCircle,
+  ReceiptText,
   Ruler,
   Settings,
   ShieldCheck,
@@ -63,8 +66,16 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
   return (
     <>
       <div className="mb-8 border-b border-gray-200 pb-4 dark:border-gray-800">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">Ana&apos;s Store - Conforto Íntimo</p>
-        <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">Controle de Vendas</h2>
+        <button
+          type="button"
+          onClick={() => {
+            onNavigate('dashboard')
+            onClose()
+          }}
+          className="text-left text-sm font-extrabold uppercase tracking-[0.24em] text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+        >
+          ANA&apos;S STORE
+        </button>
       </div>
 
       <nav className="space-y-2">
@@ -77,6 +88,37 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
             onClose()
           }}
         />
+
+        <SidebarItem
+          icon={ReceiptText}
+          label="Vendas"
+          active={expandedMenu === 'vendas'}
+          hasChildren
+          expanded={expandedMenu === 'vendas'}
+          onClick={() => onToggleMenu('vendas')}
+        />
+        {expandedMenu === 'vendas' && (
+          <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
+            <SidebarSubItem
+              icon={PlusCircle}
+              label="Nova Venda"
+              active={currentPage === 'new-sale'}
+              onClick={() => {
+                onNavigate('new-sale')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={History}
+              label="Historico de Vendas"
+              active={currentPage === 'sales-history'}
+              onClick={() => {
+                onNavigate('sales-history')
+                onClose()
+              }}
+            />
+          </div>
+        )}
 
         <SidebarItem
           icon={UsersRound}

@@ -1,4 +1,3 @@
-export const monthlyRevenue = 'R$ 148.320'
 export const stockItems = '1.284'
 export const dailySales = '93'
 export const monthlyExpenses = 'R$ 62.740'
@@ -10,14 +9,6 @@ export const revenueHistory = [
   { month: 'Abr', revenue: 118000 },
   { month: 'Mai', revenue: 129000 },
   { month: 'Jun', revenue: 148320 },
-]
-
-export const salesByCategory = [
-  { category: 'Camisetas', total: 390 },
-  { category: 'Calcas', total: 260 },
-  { category: 'Vestidos', total: 210 },
-  { category: 'Acessorios', total: 150 },
-  { category: 'Calcados', total: 120 },
 ]
 
 export const recentSales = [

@@ -2,18 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { KeyRound, LogIn, Mail, ShieldCheck } from 'lucide-react'
 import AccessRulesPage from './components/AccessRulesPage'
 import CategoriesPage from './components/CategoriesPage'
-import Charts from './components/Charts'
 import ColorsPage from './components/ColorsPage'
 import CustomersListPage from './components/CustomersListPage'
-import DashboardCards from './components/DashboardCards'
+import DashboardHome from './components/DashboardHome'
 import GenresPage from './components/GenresPage'
 import Header from './components/Header'
 import ItemSizesPage from './components/ItemSizesPage'
+import NewSalePage from './components/NewSalePage'
 import PaymentMethodsPage from './components/PaymentMethodsPage'
 import ProductsPage from './components/ProductsPage'
-import SalesTable from './components/SalesTable'
+import ProfilePage from './components/ProfilePage'
+import SalesHistoryPage from './components/SalesHistoryPage'
 import Sidebar from './components/Sidebar'
-import StockTable from './components/StockTable'
 import SuppliersPage from './components/SuppliersPage'
 import UsersListPage from './components/UsersListPage'
 
@@ -23,6 +23,9 @@ const LOGIN_PATH = '/login'
 const DASHBOARD_PATH = '/dashboard'
 const CUSTOMERS_PATH = '/customers'
 const PRODUCTS_PATH = '/products'
+const NEW_SALE_PATH = '/sales/new'
+const SALES_HISTORY_PATH = '/sales/history'
+const PROFILE_PATH = '/profile'
 const SUPPLIERS_PATH = '/suppliers'
 const USERS_PATH = '/users'
 const ACCESS_RULES_PATH = '/access-rules'
@@ -90,7 +93,11 @@ function getTokenExpirationMs(token) {
 }
 
 function getCurrentPath() {
-  return window.location.pathname || LOGIN_PATH
+  const rawPath = window.location.pathname || LOGIN_PATH
+  if (rawPath.length > 1 && rawPath.endsWith('/')) {
+    return rawPath.slice(0, -1)
+  }
+  return rawPath
 }
 
 function navigate(path, replace = false) {
@@ -157,8 +164,8 @@ function LoginPage({ onLogin }) {
     <main className="login-shell">
       <section className="login-card">
         <header className="title-block">
-          <p className="brand-tag">Ana&apos;s Store - Conforto Íntimo</p>
-          <h1>Painel de vendas</h1>
+          <p className="brand-tag">ANA&apos;S STORE</p>
+          <h1>Acessar sistema</h1>
           <p>Entre com seu e-mail e senha para abrir o painel de controle.</p>
         </header>
 
@@ -174,7 +181,7 @@ function LoginPage({ onLogin }) {
                 className="field-input !pl-10"
                 type="email"
                 autoComplete="email"
-                placeholder="voce@anasstore.com.br"
+                placeholder="seuemail@anastore.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
@@ -225,27 +232,21 @@ function LoginPage({ onLogin }) {
 function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, onNavigate }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const currentPage =
-    currentPath === CUSTOMERS_PATH
-      ? 'customers'
-      : currentPath === PRODUCTS_PATH
-        ? 'products'
-      : currentPath === SUPPLIERS_PATH
-        ? 'suppliers'
-      : currentPath === USERS_PATH
-        ? 'users'
-        : currentPath === ACCESS_RULES_PATH
-          ? 'access-rules'
-          : currentPath === CATEGORIES_PATH
-            ? 'categories'
-      : currentPath === COLORS_PATH
-        ? 'colors'
-        : currentPath === GENRES_PATH
-          ? 'genres'
-          : currentPath === ITEM_SIZES_PATH
-            ? 'item-sizes'
-            : currentPath === PAYMENT_METHODS_PATH
-              ? 'payment-methods'
-        : 'dashboard'
+    {
+      [CUSTOMERS_PATH]: 'customers',
+      [PRODUCTS_PATH]: 'products',
+      [NEW_SALE_PATH]: 'new-sale',
+      [SALES_HISTORY_PATH]: 'sales-history',
+      [PROFILE_PATH]: 'profile',
+      [SUPPLIERS_PATH]: 'suppliers',
+      [USERS_PATH]: 'users',
+      [ACCESS_RULES_PATH]: 'access-rules',
+      [CATEGORIES_PATH]: 'categories',
+      [COLORS_PATH]: 'colors',
+      [GENRES_PATH]: 'genres',
+      [ITEM_SIZES_PATH]: 'item-sizes',
+      [PAYMENT_METHODS_PATH]: 'payment-methods',
+    }[currentPath] ?? 'dashboard'
 
   return (
     <main className="flex min-h-screen bg-gray-100 dark:bg-gray-950">
@@ -263,23 +264,19 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
           theme={theme}
           onToggleTheme={onToggleTheme}
           onToggleSidebar={() => setIsSidebarOpen((current) => !current)}
+          onNavigate={onNavigate}
         />
 
         <div className="space-y-6 p-4 sm:p-6">
           {currentPage === 'dashboard' && (
-            <>
-              <DashboardCards />
-              <Charts />
-
-              <div className="grid gap-6 2xl:grid-cols-2">
-                <SalesTable />
-                <StockTable />
-              </div>
-            </>
+            <DashboardHome token={session.token} onNavigate={onNavigate} />
           )}
 
           {currentPage === 'customers' && <CustomersListPage token={session.token} />}
           {currentPage === 'products' && <ProductsPage token={session.token} />}
+          {currentPage === 'new-sale' && <NewSalePage token={session.token} />}
+          {currentPage === 'sales-history' && <SalesHistoryPage token={session.token} />}
+          {currentPage === 'profile' && <ProfilePage session={session} token={session.token} />}
           {currentPage === 'suppliers' && <SuppliersPage token={session.token} />}
           {currentPage === 'users' && <UsersListPage token={session.token} />}
           {currentPage === 'access-rules' && <AccessRulesPage token={session.token} />}
@@ -414,6 +411,21 @@ function App() {
       return
     }
 
+    if (page === 'new-sale') {
+      navigate(NEW_SALE_PATH)
+      return
+    }
+
+    if (page === 'sales-history') {
+      navigate(SALES_HISTORY_PATH)
+      return
+    }
+
+    if (page === 'profile') {
+      navigate(PROFILE_PATH)
+      return
+    }
+
     if (page === 'suppliers') {
       navigate(SUPPLIERS_PATH)
       return
@@ -536,13 +548,17 @@ function App() {
     currentPath === '/' ||
     currentPath === CUSTOMERS_PATH ||
     currentPath === PRODUCTS_PATH ||
+    currentPath === NEW_SALE_PATH ||
+    currentPath === SALES_HISTORY_PATH ||
+    currentPath === PROFILE_PATH ||
     currentPath === SUPPLIERS_PATH ||
     currentPath === USERS_PATH ||
     currentPath === ACCESS_RULES_PATH ||
     currentPath === CATEGORIES_PATH ||
     currentPath === COLORS_PATH ||
     currentPath === GENRES_PATH ||
-    currentPath === ITEM_SIZES_PATH
+    currentPath === ITEM_SIZES_PATH ||
+    currentPath === PAYMENT_METHODS_PATH
   ) {
     return (
       <DashboardPage

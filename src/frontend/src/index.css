@@ -58,6 +58,7 @@ h3 {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  background: linear-gradient(135deg, #eef2f7, #dfe6ef);
 }
 
 .login-card {

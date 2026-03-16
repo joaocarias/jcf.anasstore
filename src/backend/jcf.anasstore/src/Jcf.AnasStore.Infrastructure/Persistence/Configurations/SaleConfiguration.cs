@@ -23,10 +23,27 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.Property(x => x.UserCreateId).HasColumnName("user_create_id");
         builder.Property(x => x.UpdateAt).HasColumnName("update_at");
         builder.Property(x => x.UserUpdateId).HasColumnName("user_update_id");
-        builder.Property(x => x.CustomerEmail).HasColumnName("customer_email").HasMaxLength(255).IsRequired();
+        builder.Property(x => x.CustomerId).HasColumnName("customer_id");
+        builder.Property(x => x.PaymentMethodId).HasColumnName("payment_method_id");
+        builder.Property(x => x.Installments).HasColumnName("installments");
+        builder.Property(x => x.SubtotalAmount).HasColumnName("subtotal_amount").HasPrecision(18, 2);
+        builder.Property(x => x.DiscountAmount).HasColumnName("discount_amount").HasPrecision(18, 2);
         builder.Property(x => x.TotalAmount).HasColumnName("total_amount").HasPrecision(18, 2);
         builder.HasIndex(x => x.Uid).IsUnique();
 
         builder.HasIndex(x => x.CreateAt);
+        builder.HasIndex(x => x.PaymentMethodId);
+
+        builder.HasOne(x => x.Customer)
+            .WithMany()
+            .HasForeignKey(x => x.CustomerId);
+
+        builder.HasOne(x => x.PaymentMethod)
+            .WithMany()
+            .HasForeignKey(x => x.PaymentMethodId);
+
+        builder.HasMany(x => x.Items)
+            .WithOne(x => x.Sale)
+            .HasForeignKey(x => x.SaleId);
     }
 }

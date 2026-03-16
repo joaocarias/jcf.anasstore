@@ -1,27 +1,8 @@
-import { Cake, ChevronLeft, ChevronRight, Eye, Loader2, MessageCircle, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
+import { Cake, ChevronLeft, ChevronRight, Eye, Loader2, MessageCircle, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import CustomerFormModal, { EMPTY_CUSTOMER_FORM, buildCustomerPayload } from './CustomerFormModal'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
-const EMPTY_FORM = {
-  name: '',
-  genreUid: '',
-  birthDate: '',
-  phone: '',
-  isWhatsApp: true,
-  place: '',
-  number: '',
-  neighborhood: '',
-  complement: '',
-  zipCode: '',
-  city: '',
-  state: 'RN',
-}
-
-function emptyToNull(value) {
-  const trimmed = (value ?? '').trim()
-  return trimmed.length === 0 ? null : trimmed
-}
-
 function formatCityState(city, state) {
   if (city && state) return `${city} - ${state}`
   if (city) return city
@@ -45,33 +26,6 @@ function isBirthday(value) {
   const currentDay = String(now.getDate()).padStart(2, '0')
   const currentMonth = String(now.getMonth() + 1).padStart(2, '0')
   return day === currentDay && month === currentMonth
-}
-
-function formatPhone(value) {
-  const digits = value.replace(/\D/g, '').slice(0, 11)
-
-  if (digits.length <= 2) {
-    return digits.length === 0 ? '' : `(${digits}`
-  }
-
-  const ddd = digits.slice(0, 2)
-  const localNumber = digits.slice(2)
-
-  if (localNumber.length <= 4) {
-    return `(${ddd}) ${localNumber}`
-  }
-
-  if (localNumber.length <= 8) {
-    return `(${ddd}) ${localNumber.slice(0, 4)}-${localNumber.slice(4)}`
-  }
-
-  return `(${ddd}) ${localNumber.slice(0, 5)}-${localNumber.slice(5, 9)}`
-}
-
-function formatZipCode(value) {
-  const digits = value.replace(/\D/g, '').slice(0, 8)
-  if (digits.length <= 5) return digits
-  return `${digits.slice(0, 5)}-${digits.slice(5)}`
 }
 
 function formatDate(value) {
@@ -104,7 +58,7 @@ export default function CustomersListPage({ token }) {
   const [customerPendingDelete, setCustomerPendingDelete] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
   const [saveErrorMessage, setSaveErrorMessage] = useState('')
-  const [formData, setFormData] = useState(EMPTY_FORM)
+  const [formData, setFormData] = useState(EMPTY_CUSTOMER_FORM)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isViewLoading, setIsViewLoading] = useState(false)
   const [viewErrorMessage, setViewErrorMessage] = useState('')
@@ -187,7 +141,7 @@ export default function CustomersListPage({ token }) {
   }
 
   function handleOpenCreate() {
-    setFormData(EMPTY_FORM)
+    setFormData(EMPTY_CUSTOMER_FORM)
     setSaveErrorMessage('')
     setEditingCustomerUid(null)
     setIsCreateModalOpen(true)
@@ -222,22 +176,7 @@ export default function CustomersListPage({ token }) {
     setSaveErrorMessage('')
     const isEditing = Boolean(editingCustomerUid)
 
-    const payload = {
-      name: formData.name.trim(),
-      genreUid: formData.genreUid,
-      birthDate: formData.birthDate || null,
-      phone: formData.phone.trim(),
-      isWhatsApp: formData.isWhatsApp,
-      address: {
-        place: emptyToNull(formData.place),
-        number: emptyToNull(formData.number),
-        neighborhood: emptyToNull(formData.neighborhood),
-        complement: emptyToNull(formData.complement),
-        zipCode: emptyToNull(formData.zipCode),
-        city: emptyToNull(formData.city),
-        state: emptyToNull(formData.state),
-      },
-    }
+    const payload = buildCustomerPayload(formData)
 
     try {
       const response = await fetch(isEditing ? `${API_BASE_URL}/Customers/${editingCustomerUid}` : `${API_BASE_URL}/Customers`, {
@@ -523,214 +462,17 @@ export default function CustomersListPage({ token }) {
       )}
 
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-40 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
-            <header className="mb-5">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {editingCustomerUid ? 'Editar Cliente' : 'Adicionar Cliente'}
-              </h3>
-            </header>
-
-            <form className="grid gap-4" onSubmit={handleCreateCustomer}>
-              <div className="grid gap-3 md:grid-cols-2">
-                <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                  Nome
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(event) => handleInputChange('name', event.target.value)}
-                    required
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </label>
-
-                <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                  Gênero
-                  <select
-                    value={formData.genreUid}
-                    onChange={(event) => handleInputChange('genreUid', event.target.value)}
-                    required
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  >
-                    <option value="">Selecione</option>
-                    {genres.map((genre) => (
-                      <option key={genre.uid} value={genre.uid}>
-                        {genre.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                  Data de Nascimento
-                  <input
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(event) => handleInputChange('birthDate', event.target.value)}
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </label>
-
-                <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                  Telefone
-                  <input
-                    type="text"
-                    value={formData.phone}
-                    onChange={(event) => handleInputChange('phone', formatPhone(event.target.value))}
-                    required
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </label>
-
-                <label className="mt-7 inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={formData.isWhatsApp}
-                    onChange={(event) => handleInputChange('isWhatsApp', event.target.checked)}
-                  />
-                  É WhatsApp
-                </label>
-              </div>
-
-              <div className="mt-1 border-t border-gray-200 pt-4 dark:border-gray-800">
-                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Endereço
-                </h4>
-
-                <div className="grid gap-3 md:grid-cols-3">
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300 md:col-span-2">
-                    Logradouro
-                    <input
-                      type="text"
-                      value={formData.place}
-                      onChange={(event) => handleInputChange('place', event.target.value)}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  </label>
-
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                    Número
-                    <input
-                      type="text"
-                      value={formData.number}
-                      onChange={(event) => handleInputChange('number', event.target.value)}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  </label>
-                </div>
-
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                    Bairro
-                    <input
-                      type="text"
-                      value={formData.neighborhood}
-                      onChange={(event) => handleInputChange('neighborhood', event.target.value)}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  </label>
-
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                    Complemento
-                    <input
-                      type="text"
-                      value={formData.complement}
-                      onChange={(event) => handleInputChange('complement', event.target.value)}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  </label>
-
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                    CEP
-                    <input
-                      type="text"
-                      value={formData.zipCode}
-                      onChange={(event) => handleInputChange('zipCode', formatZipCode(event.target.value))}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  </label>
-                </div>
-
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300 md:col-span-2">
-                    Cidade
-                    <input
-                      type="text"
-                      value={formData.city}
-                      onChange={(event) => handleInputChange('city', event.target.value)}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  </label>
-
-                  <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-                    UF
-                    <select
-                      value={formData.state}
-                      onChange={(event) => handleInputChange('state', event.target.value)}
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    >
-                      <option value="AC">Acre</option>
-                      <option value="AL">Alagoas</option>
-                      <option value="AP">Amapá</option>
-                      <option value="AM">Amazonas</option>
-                      <option value="BA">Bahia</option>
-                      <option value="CE">Ceará</option>
-                      <option value="DF">Distrito Federal</option>
-                      <option value="ES">Espírito Santo</option>
-                      <option value="GO">Goiás</option>
-                      <option value="MA">Maranhão</option>
-                      <option value="MT">Mato Grosso</option>
-                      <option value="MS">Mato Grosso do Sul</option>
-                      <option value="MG">Minas Gerais</option>
-                      <option value="PA">Pará</option>
-                      <option value="PB">Paraíba</option>
-                      <option value="PR">Paraná</option>
-                      <option value="PE">Pernambuco</option>
-                      <option value="PI">Piauí</option>
-                      <option value="RJ">Rio de Janeiro</option>
-                      <option value="RN">Rio Grande do Norte</option>
-                      <option value="RS">Rio Grande do Sul</option>
-                      <option value="RO">Rondônia</option>
-                      <option value="RR">Roraima</option>
-                      <option value="SC">Santa Catarina</option>
-                      <option value="SP">São Paulo</option>
-                      <option value="SE">Sergipe</option>
-                      <option value="TO">Tocantins</option>
-                      <option value="EX">Estrangeiro</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              {saveErrorMessage && (
-                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-                  {saveErrorMessage}
-                </p>
-              )}
-
-              <div className="mt-2 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleCloseCreate}
-                  className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-                >
-                  <X size={16} />
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-70"
-                >
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                  {isSaving ? 'Salvando...' : 'Salvar'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <CustomerFormModal
+          isOpen={isCreateModalOpen}
+          title={editingCustomerUid ? 'Editar Cliente' : 'Adicionar Cliente'}
+          formData={formData}
+          genres={genres}
+          isSaving={isSaving}
+          saveErrorMessage={saveErrorMessage}
+          onChange={handleInputChange}
+          onClose={handleCloseCreate}
+          onSubmit={handleCreateCustomer}
+        />
       )}
 
       {isViewModalOpen && (
