@@ -913,7 +913,7 @@ export default function ProductsPage({ token }) {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Produtos</h2>
         <div className="flex flex-wrap items-center gap-2">
@@ -1063,7 +1063,7 @@ export default function ProductsPage({ token }) {
 
       {viewingProduct && (
         <div className="fixed inset-0 z-40 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Visualizar Produto</h3>
             </header>
@@ -1290,7 +1290,7 @@ export default function ProductsPage({ token }) {
 
       {isFormOpen && (
         <div className="fixed inset-0 z-40 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-4xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {editingUid ? 'Editar Produto' : 'Adicionar Produto'}
@@ -1434,7 +1434,7 @@ export default function ProductsPage({ token }) {
 
       {isQuickSupplierOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Adicionar Fornecedor</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Cadastro rapido sem sair da tela de produto.</p>
@@ -1622,7 +1622,7 @@ export default function ProductsPage({ token }) {
 
       {isQuickCategoryOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Adicionar Categoria</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Cadastro rapido sem sair da tela de produto.</p>
@@ -1682,7 +1682,7 @@ export default function ProductsPage({ token }) {
 
       {isQuickColorOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Adicionar Cor</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Cadastro rapido sem sair da variacao do produto.</p>
@@ -1742,7 +1742,7 @@ export default function ProductsPage({ token }) {
 
       {isQuickItemSizeOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Adicionar Tamanho</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Cadastro rapido sem sair da variacao do produto.</p>
@@ -1816,7 +1816,7 @@ export default function ProductsPage({ token }) {
 
       {pendingDeleteItem && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar exclusao</h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -1850,7 +1850,7 @@ export default function ProductsPage({ token }) {
 
       {pendingStockVariation && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Adicionar estoque</h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -1900,7 +1900,7 @@ export default function ProductsPage({ token }) {
       )}
       {pendingDeleteVariation && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar exclusao</h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">

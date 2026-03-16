@@ -7,9 +7,9 @@ function formatDate(value) {
 
 export default function LatestProductsTable({ products, isLoading, onViewAll }) {
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Ultimos produtos cadastrados</h2>
+        <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Ultimos produtos cadastrados</h2>
         <button
           type="button"
           className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700"
@@ -20,7 +20,7 @@ export default function LatestProductsTable({ products, isLoading, onViewAll }) 
       </header>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="min-w-full text-left text-xs sm:text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-gray-500 dark:border-gray-800 dark:text-gray-400">
               <th className="py-2 pr-3">Produto</th>

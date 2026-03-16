@@ -83,7 +83,7 @@ export default function CustomerFormModal({
 
   return (
     <div className="fixed inset-0 z-40 overflow-y-auto bg-black/45 px-4 py-6">
-      <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+      <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
         <header className="mb-5">
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
         </header>

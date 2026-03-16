@@ -97,7 +97,7 @@ export default function ProfilePage({ session, token }) {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Perfil do Usuario</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300">Informacoes basicas da conta autenticada.</p>

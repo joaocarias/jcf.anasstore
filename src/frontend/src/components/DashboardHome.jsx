@@ -81,7 +81,7 @@ export default function DashboardHome({ token, onNavigate }) {
 
   return (
     <section className="space-y-6">
-      <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+      <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
         <header className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Acesso r\u00e1pido</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">

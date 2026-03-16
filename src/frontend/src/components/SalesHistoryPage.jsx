@@ -144,7 +144,7 @@ export default function SalesHistoryPage({ token }) {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Historico de Vendas</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300">Lista de vendas finalizadas.</p>
@@ -284,7 +284,7 @@ export default function SalesHistoryPage({ token }) {
 
       {isSummaryOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Resumo da Venda</h3>
             </header>

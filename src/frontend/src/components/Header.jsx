@@ -38,9 +38,11 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
         <button
           type="button"
           onClick={() => setIsMenuOpen((current) => !current)}
-          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-200 hover:border-blue-600 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-500 dark:hover:text-blue-400 sm:px-4"
+          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 shadow-sm transition-all duration-200 hover:border-blue-600 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-500 dark:hover:text-blue-400 sm:px-4 sm:text-sm"
         >
-          {"Ol\u00e1, "}{firstName}
+          <span className="max-w-[140px] truncate sm:max-w-none">
+            {"Ol\u00e1, "}{firstName}
+          </span>
           <ChevronDown size={16} />
         </button>
 

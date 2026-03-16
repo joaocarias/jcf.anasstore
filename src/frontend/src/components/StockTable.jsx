@@ -17,7 +17,7 @@ function StockFlag({ quantity, minimum }) {
 
 export default function StockTable() {
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Controle de Estoque</h2>
         <button

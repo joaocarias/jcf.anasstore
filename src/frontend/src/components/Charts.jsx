@@ -4,8 +4,8 @@ import { revenueHistory } from '../data/dashboardData'
 export default function Charts() {
   return (
     <section className="grid gap-4">
-      <article className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
-        <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">Faturamento Semestral</h2>
+      <article className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+        <h2 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Faturamento Semestral</h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={revenueHistory}>

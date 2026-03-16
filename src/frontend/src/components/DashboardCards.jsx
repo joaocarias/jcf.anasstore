@@ -33,7 +33,7 @@ export default function DashboardCards({ summary, isLoading }) {
         return (
           <article
             key={card.title}
-            className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30"
+            className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30"
           >
             <div className="mb-4 flex items-start justify-between">
               <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{card.title}</h2>

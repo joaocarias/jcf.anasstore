@@ -58,7 +58,7 @@ export default function AccessRulesPage({ token }) {
   }, [loadRoles])
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-5">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Regras de Acesso</h2>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">

@@ -342,7 +342,7 @@ export default function UsersListPage({ token }) {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Usuários</h2>
         <div className="flex flex-wrap items-center gap-2">
@@ -489,7 +489,7 @@ export default function UsersListPage({ token }) {
 
       {isFormOpen && (
         <div className="fixed inset-0 z-40 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-2xl rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {editingUserUid ? 'Editar Usuário' : 'Adicionar Usuário'}
@@ -570,7 +570,7 @@ export default function UsersListPage({ token }) {
 
       {userPendingReset && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar reset de senha</h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -604,7 +604,7 @@ export default function UsersListPage({ token }) {
 
       {userPendingDelete && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/45 px-4 py-6">
-          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-4 sm:p-6 max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-gray-900">
             <header className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar exclusão</h3>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
