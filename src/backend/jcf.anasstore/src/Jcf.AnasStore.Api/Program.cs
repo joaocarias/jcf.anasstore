@@ -53,8 +53,15 @@ var app = builder.Build();
 
 await ApplyMigrationsAndSeedAsync(app);
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -66,25 +73,45 @@ await app.RunAsync();
 
 static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
 {
+    var configuration = app.Configuration;
+    var isDevelopment = app.Environment.IsDevelopment();
+    var autoMigrate = isDevelopment || configuration.GetValue("Database:AutoMigrate", false);
+    var seedLookups = isDevelopment || configuration.GetValue("Seed:EnableLookupSeed", false);
+    var seedDefaultUsers = isDevelopment && configuration.GetValue("Seed:EnableDefaultUsers", false);
+
+    if (!autoMigrate && !seedLookups && !seedDefaultUsers)
+    {
+        return;
+    }
+
     await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await dbContext.Database.MigrateAsync();
-    await dbContext.Database.ExecuteSqlRawAsync(
-        """
-        drop index if exists "IX_product_variations_code";
-        drop index if exists "IX_product_variations_product_id_color_id_item_size_id";
-        """);
+    if (autoMigrate)
+    {
+        await dbContext.Database.MigrateAsync();
+        await dbContext.Database.ExecuteSqlRawAsync(
+            """
+            drop index if exists "IX_product_variations_code";
+            drop index if exists "IX_product_variations_product_id_color_id_item_size_id";
+            """);
+    }
 
-    var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
-    await identitySeeder.SeedAsync(CancellationToken.None);
+    if (seedDefaultUsers)
+    {
+        var identitySeeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
+        await identitySeeder.SeedAsync(CancellationToken.None);
+    }
 
-    var genreSeeder = scope.ServiceProvider.GetRequiredService<GenreSeeder>();
-    await genreSeeder.SeedAsync(CancellationToken.None);
+    if (seedLookups)
+    {
+        var genreSeeder = scope.ServiceProvider.GetRequiredService<GenreSeeder>();
+        await genreSeeder.SeedAsync(CancellationToken.None);
 
-    var itemSizeSeeder = scope.ServiceProvider.GetRequiredService<ItemSizeSeeder>();
-    await itemSizeSeeder.SeedAsync(CancellationToken.None);
+        var itemSizeSeeder = scope.ServiceProvider.GetRequiredService<ItemSizeSeeder>();
+        await itemSizeSeeder.SeedAsync(CancellationToken.None);
 
-    var colorSeeder = scope.ServiceProvider.GetRequiredService<ColorSeeder>();
-    await colorSeeder.SeedAsync(CancellationToken.None);
+        var colorSeeder = scope.ServiceProvider.GetRequiredService<ColorSeeder>();
+        await colorSeeder.SeedAsync(CancellationToken.None);
+    }
 }
 

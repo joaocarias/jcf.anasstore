@@ -1,4 +1,5 @@
-import {
+﻿import {
+  Building2,
   ChevronDown,
   CreditCard,
   Factory,
@@ -110,7 +111,7 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
             />
             <SidebarSubItem
               icon={History}
-              label="Historico de Vendas"
+              label="Histórico de Vendas"
               active={currentPage === 'sales-history'}
               onClick={() => {
                 onNavigate('sales-history')
@@ -122,13 +123,13 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
 
         <SidebarItem
           icon={UsersRound}
-          label="Gestao"
-          active={expandedMenu === 'gestao'}
+          label="Gestão"
+          active={expandedMenu === 'Gestão'}
           hasChildren
-          expanded={expandedMenu === 'gestao'}
-          onClick={() => onToggleMenu('gestao')}
+          expanded={expandedMenu === 'Gestão'}
+          onClick={() => onToggleMenu('Gestão')}
         />
-        {expandedMenu === 'gestao' && (
+        {expandedMenu === 'Gestão' && (
           <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
             <SidebarSubItem
               icon={UserCircle2}
@@ -159,7 +160,7 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
             />
             <SidebarSubItem
               icon={UsersRound}
-              label="Usuarios"
+              label="Usuários"
               active={currentPage === 'users'}
               onClick={() => {
                 onNavigate('users')
@@ -180,14 +181,23 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
 
         <SidebarItem
           icon={Settings}
-          label="Configuracoes"
-          active={expandedMenu === 'configuracoes'}
+          label="Configurações"
+          active={expandedMenu === 'Configurações'}
           hasChildren
-          expanded={expandedMenu === 'configuracoes'}
-          onClick={() => onToggleMenu('configuracoes')}
+          expanded={expandedMenu === 'Configurações'}
+          onClick={() => onToggleMenu('Configurações')}
         />
-        {expandedMenu === 'configuracoes' && (
+        {expandedMenu === 'Configurações' && (
           <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
+            <SidebarSubItem
+              icon={Building2}
+              label="Organização"
+              active={currentPage === 'organization'}
+              onClick={() => {
+                onNavigate('organization')
+                onClose()
+              }}
+            />
             <SidebarSubItem
               icon={Tags}
               label="Categorias"
@@ -226,7 +236,7 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
             />
             <SidebarSubItem
               icon={Shirt}
-              label="Generos"
+              label="Gêneros"
               active={currentPage === 'genres'}
               onClick={() => {
                 onNavigate('genres')
@@ -286,3 +296,5 @@ export default function Sidebar({
     </>
   )
 }
+
+

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { KeyRound, LogIn, Mail, ShieldCheck } from 'lucide-react'
 import AccessRulesPage from './components/AccessRulesPage'
 import CategoriesPage from './components/CategoriesPage'
@@ -9,6 +9,7 @@ import GenresPage from './components/GenresPage'
 import Header from './components/Header'
 import ItemSizesPage from './components/ItemSizesPage'
 import NewSalePage from './components/NewSalePage'
+import OrganizationPage from './components/OrganizationPage'
 import PaymentMethodsPage from './components/PaymentMethodsPage'
 import ProductsPage from './components/ProductsPage'
 import ProfilePage from './components/ProfilePage'
@@ -34,6 +35,7 @@ const COLORS_PATH = '/colors'
 const GENRES_PATH = '/genres'
 const ITEM_SIZES_PATH = '/item-sizes'
 const PAYMENT_METHODS_PATH = '/payment-methods'
+const ORGANIZATION_PATH = '/organization'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 const TOKEN_REFRESH_WINDOW_MS = 5 * 60 * 1000
 const TOKEN_REFRESH_CHECK_INTERVAL_MS = 30 * 1000
@@ -85,6 +87,19 @@ function decodeJwtPayload(token) {
   }
 }
 
+function getRolesFromToken(token) {
+  const payload = decodeJwtPayload(token)
+  if (!payload) return []
+  const roleClaim =
+    payload.role ??
+    payload.roles ??
+    payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+    payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role']
+  if (!roleClaim) return []
+  if (Array.isArray(roleClaim)) return roleClaim.filter(Boolean)
+  if (typeof roleClaim === 'string') return [roleClaim]
+  return []
+}
 function getTokenExpirationMs(token) {
   const payload = decodeJwtPayload(token)
   const exp = payload?.exp
@@ -152,6 +167,7 @@ function LoginPage({ onLogin }) {
         refreshToken: payload.refreshToken,
         email,
         displayName,
+        roles: getRolesFromToken(payload.token),
       })
     } catch {
       setErrorMessage('Não foi possível autenticar.')
@@ -159,6 +175,7 @@ function LoginPage({ onLogin }) {
       setIsLoading(false)
     }
   }
+
 
   return (
     <main className="login-shell">
@@ -246,7 +263,11 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
       [GENRES_PATH]: 'genres',
       [ITEM_SIZES_PATH]: 'item-sizes',
       [PAYMENT_METHODS_PATH]: 'payment-methods',
+      [ORGANIZATION_PATH]: 'organization',
     }[currentPath] ?? 'dashboard'
+
+  const isAdmin = (session?.roles ?? getRolesFromToken(session?.token ?? '')).includes('Admin')
+
 
   return (
     <main className="flex min-h-screen bg-gray-100 dark:bg-gray-950">
@@ -285,6 +306,7 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
           {currentPage === 'genres' && <GenresPage token={session.token} />}
           {currentPage === 'item-sizes' && <ItemSizesPage token={session.token} />}
           {currentPage === 'payment-methods' && <PaymentMethodsPage token={session.token} />}
+          {currentPage === 'organization' && <OrganizationPage token={session.token} isAdmin={isAdmin} />}
         </div>
       </div>
     </main>
@@ -322,6 +344,21 @@ function App() {
     }
   }, [path, session])
 
+  useEffect(() => {
+    if (!session?.token) {
+      return
+    }
+
+    const currentRoles = Array.isArray(session.roles) ? session.roles : null
+    if (currentRoles && currentRoles.length > 0) {
+      return
+    }
+
+    const roles = getRolesFromToken(session.token)
+    const nextSession = { ...session, roles }
+    writeSession(nextSession)
+    setSession(nextSession)
+  }, [session])
   useEffect(() => {
     if (!session) {
       return
@@ -385,6 +422,7 @@ function App() {
         ...currentSession,
         token: payload.token,
         refreshToken: payload.refreshToken,
+        roles: getRolesFromToken(payload.token),
       }
     } catch {
       return null
@@ -458,6 +496,11 @@ function App() {
 
     if (page === 'payment-methods') {
       navigate(PAYMENT_METHODS_PATH)
+      return
+    }
+
+    if (page === 'organization') {
+      navigate(ORGANIZATION_PATH)
       return
     }
 
@@ -558,7 +601,8 @@ function App() {
     currentPath === COLORS_PATH ||
     currentPath === GENRES_PATH ||
     currentPath === ITEM_SIZES_PATH ||
-    currentPath === PAYMENT_METHODS_PATH
+    currentPath === PAYMENT_METHODS_PATH ||
+    currentPath === ORGANIZATION_PATH
   ) {
     return (
       <DashboardPage
@@ -577,3 +621,12 @@ function App() {
 }
 
 export default App
+
+
+
+
+
+
+
+
+

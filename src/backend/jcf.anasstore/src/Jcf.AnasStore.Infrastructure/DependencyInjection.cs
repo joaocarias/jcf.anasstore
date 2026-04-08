@@ -36,9 +36,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
-using Microsoft.AspNetCore.Identity;
 
 namespace Jcf.AnasStore.Infrastructure;
 
@@ -62,6 +62,21 @@ public static class DependencyInjection
         var jwtSection = configuration.GetSection(JwtSettings.SectionName);
         services.Configure<JwtSettings>(jwtSection);
         var jwt = jwtSection.Get<JwtSettings>() ?? throw new InvalidOperationException("JwtSettings section is invalid.");
+        if (string.IsNullOrWhiteSpace(jwt.SigningKey))
+        {
+            throw new InvalidOperationException("JwtSettings:SigningKey must be configured.");
+        }
+
+        if (string.Equals(jwt.SigningKey, "CHANGE_ME", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(jwt.SigningKey, "super-secret-key-for-local-development-only-change-me", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("JwtSettings:SigningKey must be replaced with a secure value.");
+        }
+
+        if (Encoding.UTF8.GetByteCount(jwt.SigningKey) < 32)
+        {
+            throw new InvalidOperationException("JwtSettings:SigningKey must be at least 32 bytes for HS256.");
+        }
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -89,7 +104,7 @@ public static class DependencyInjection
 
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         context.Response.ContentType = "application/json";
-                        var payload = JsonSerializer.Serialize(new { message = "Você não possui acesso para realizar esta ação." });
+                        var payload = JsonSerializer.Serialize(new { message = "Voce nao possui acesso para realizar esta acao." });
                         await context.Response.WriteAsync(payload);
                     },
                     OnChallenge = async context =>
@@ -102,7 +117,7 @@ public static class DependencyInjection
 
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = "application/json";
-                        var payload = JsonSerializer.Serialize(new { message = "Usuário não autenticado." });
+                        var payload = JsonSerializer.Serialize(new { message = "Usuario nao autenticado." });
                         await context.Response.WriteAsync(payload);
                     }
                 };
@@ -114,11 +129,11 @@ public static class DependencyInjection
         services.AddScoped<ISalesRepository, SalesRepository>();
         services.AddScoped<IPaymentMethodsRepository, PaymentMethodsRepository>();
         services.AddScoped<ISalesReadRepository>(_ => new SalesReadRepository(connectionString));
-        services.AddScoped<IDashboardReadRepository>(_ => new DashboardReadRepository(connectionString));
         services.AddScoped<IRolesReadRepository>(_ => new RolesReadRepository(connectionString));
         services.AddScoped<IProductsReadRepository>(_ => new ProductsReadRepository(connectionString));
         services.AddScoped<IProductVariationsReadRepository>(_ => new ProductVariationsReadRepository(connectionString));
         services.AddScoped<IPaymentMethodsReadRepository>(_ => new PaymentMethodsReadRepository(connectionString));
+        services.AddScoped<IDashboardReadRepository>(_ => new DashboardReadRepository(connectionString));
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IdentitySeeder>();
@@ -138,13 +153,13 @@ public static class DependencyInjection
         services.AddScoped<IQueryHandler<GetRecentSalesQuery, IReadOnlyList<SaleSummaryDto>>, GetRecentSalesQueryHandler>();
         services.AddScoped<IQueryHandler<GetSaleByIdQuery, SaleDetailDto?>, GetSaleByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetSalesHistoryQuery, PagedReadResult<SaleSummaryDto>>, GetSalesHistoryQueryHandler>();
-        services.AddScoped<IQueryHandler<GetDashboardSummaryQuery, DashboardSummaryDto>, GetDashboardSummaryQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductsQuery, PagedReadResult<ProductReadDto>>, GetProductsQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductByIdQuery, ProductReadDto?>, GetProductByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductVariationsQuery, PagedReadResult<ProductVariationReadDto>>, GetProductVariationsQueryHandler>();
         services.AddScoped<IQueryHandler<GetProductVariationByIdQuery, ProductVariationReadDto?>, GetProductVariationByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetPaymentMethodsQuery, PagedReadResult<PaymentMethodReadDto>>, GetPaymentMethodsQueryHandler>();
         services.AddScoped<IQueryHandler<GetPaymentMethodByIdQuery, PaymentMethodReadDto?>, GetPaymentMethodByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetDashboardSummaryQuery, DashboardSummaryDto>, GetDashboardSummaryQueryHandler>();
 
         return services;
     }

@@ -1,12 +1,14 @@
 using Jcf.AnasStore.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Jcf.AnasStore.Infrastructure.Security;
 
-public sealed class IdentitySeeder(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
+public sealed class IdentitySeeder(
+    UserManager<AppUser> userManager,
+    RoleManager<AppRole> roleManager,
+    IConfiguration configuration)
 {
-    public const string DefaultAdminEmail = "admin@anasstore.com";
-    public const string DefaultAdminPassword = "Admin@123";
     public const string AdminRoleName = "Admin";
     public const string BasicRoleName = "Basic";
     public const string SellerRoleName = "Seller";
@@ -22,12 +24,9 @@ public sealed class IdentitySeeder(UserManager<AppUser> userManager, RoleManager
         AuditorRoleName
     ];
 
-    private static readonly SeedUser[] DefaultUsers =
-    [
-        new("Usuário Básico", "basic@anasstore.com.br", "Basic@123", BasicRoleName),
-        new("Usuário Vendedor", "seller@anasstore.com.br", "Seller@123", SellerRoleName),
-        new("Usuário Gerente", "manager@anasstore.com.br", "Manager@123", ManagerRoleName)
-    ];
+    private readonly SeedUser? defaultAdmin = configuration.GetSection("Seed:DefaultAdmin").Get<SeedUser>();
+    private readonly List<SeedUser> defaultUsers =
+        configuration.GetSection("Seed:DefaultUsers").Get<List<SeedUser>>() ?? [];
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
@@ -41,9 +40,20 @@ public sealed class IdentitySeeder(UserManager<AppUser> userManager, RoleManager
             await roleManager.CreateAsync(new AppRole { Name = roleName });
         }
 
-        await SeedUserAsync("Administrador", DefaultAdminEmail, DefaultAdminPassword, AdminRoleName);
+        if (defaultAdmin is null && defaultUsers.Count == 0)
+        {
+            throw new InvalidOperationException("Seed default users enabled, but no users are configured.");
+        }
 
-        foreach (var defaultUser in DefaultUsers)
+        if (defaultAdmin is not null)
+        {
+            var adminRole = string.IsNullOrWhiteSpace(defaultAdmin.RoleName)
+                ? AdminRoleName
+                : defaultAdmin.RoleName;
+            await SeedUserAsync(defaultAdmin.Name, defaultAdmin.Email, defaultAdmin.Password, adminRole);
+        }
+
+        foreach (var defaultUser in defaultUsers)
         {
             await SeedUserAsync(defaultUser.Name, defaultUser.Email, defaultUser.Password, defaultUser.RoleName);
         }

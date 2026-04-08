@@ -18,6 +18,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductVariation> ProductVariations => Set<ProductVariation>();
+    public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
     public DbSet<Stock> Stocks => Set<Stock>();
@@ -63,6 +64,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<PaymentMethod>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Product>().HasQueryFilter(x => x.IsActive);
         builder.Entity<ProductVariation>().HasQueryFilter(x => x.IsActive);
+        builder.Entity<Organization>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Sale>().HasQueryFilter(x => x.IsActive);
         builder.Entity<SaleItem>().HasQueryFilter(x => x.IsActive);
         builder.Entity<Stock>().HasQueryFilter(x => x.IsActive);

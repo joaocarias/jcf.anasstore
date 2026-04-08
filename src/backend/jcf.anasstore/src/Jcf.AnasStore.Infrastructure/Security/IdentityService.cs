@@ -4,6 +4,8 @@ using Jcf.AnasStore.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Jcf.AnasStore.Infrastructure.Security;
 
@@ -13,6 +15,13 @@ public sealed class IdentityService(
     IOptions<JwtSettings> jwtSettings) : IIdentityService
 {
     private const string RefreshTokenProvider = "Jcf.AnasStore";
+
+    private static string HashRefreshToken(string refreshToken)
+    {
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(refreshToken));
+        return Convert.ToBase64String(hash);
+    }
 
     public async Task<AuthenticatedUser?> ValidateCredentialsAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -35,6 +44,7 @@ public sealed class IdentityService(
     public async Task SaveRefreshTokenAsync(long userId, string refreshToken, CancellationToken cancellationToken)
     {
         var expiresAtUtc = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays);
+        var tokenHash = HashRefreshToken(refreshToken);
 
         var existingTokens = await dbContext.Set<IdentityUserToken<long>>()
             .Where(x => x.UserId == userId && x.LoginProvider == RefreshTokenProvider)
@@ -49,7 +59,7 @@ public sealed class IdentityService(
         {
             UserId = userId,
             LoginProvider = RefreshTokenProvider,
-            Name = refreshToken,
+            Name = tokenHash,
             Value = expiresAtUtc.ToString("O")
         };
 
@@ -59,10 +69,11 @@ public sealed class IdentityService(
 
     public async Task<AuthenticatedUser?> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
+        var tokenHash = HashRefreshToken(refreshToken);
         var token = await dbContext.Set<IdentityUserToken<long>>()
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.LoginProvider == RefreshTokenProvider && x.Name == refreshToken,
+                x => x.LoginProvider == RefreshTokenProvider && x.Name == tokenHash,
                 cancellationToken);
 
         if (token is null)
@@ -88,9 +99,10 @@ public sealed class IdentityService(
 
     public async Task RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
+        var tokenHash = HashRefreshToken(refreshToken);
         var token = await dbContext.Set<IdentityUserToken<long>>()
             .FirstOrDefaultAsync(
-                x => x.LoginProvider == RefreshTokenProvider && x.Name == refreshToken,
+                x => x.LoginProvider == RefreshTokenProvider && x.Name == tokenHash,
                 cancellationToken);
 
         if (token is null)
