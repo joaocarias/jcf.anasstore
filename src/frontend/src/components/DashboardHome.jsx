@@ -81,11 +81,11 @@ export default function DashboardHome({ token, onNavigate }) {
 
   return (
     <section className="space-y-6">
-      <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+      <section className="rounded-2xl bg-white p-3 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
         <header className="mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Acesso r\u00e1pido</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Acesso rápido</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Principais a\u00e7\u00f5es para agilizar o dia a dia.
+            Principais ações para agilizar o dia a dia.
           </p>
         </header>
 
@@ -97,14 +97,14 @@ export default function DashboardHome({ token, onNavigate }) {
                 key={action.key}
                 type="button"
                 onClick={() => onNavigate?.(action.target)}
-                className="group flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-left text-sm transition hover:border-blue-500 hover:bg-blue-50 dark:border-gray-800 dark:hover:border-blue-500/70 dark:hover:bg-blue-950/30"
+                className="group flex items-center gap-3 rounded-xl border border-gray-200 px-3 py-3 text-left text-xs transition hover:border-blue-500 hover:bg-blue-50 sm:px-4 sm:text-sm dark:border-gray-800 dark:hover:border-blue-500/70 dark:hover:bg-blue-950/30"
               >
                 <span className="rounded-xl bg-blue-50 p-2 text-blue-600 transition group-hover:bg-white dark:bg-blue-950 dark:text-blue-300">
                   <Icon size={18} />
                 </span>
-                <span>
+                <span className="min-w-0">
                   <span className="block font-semibold text-gray-900 dark:text-gray-100">{action.label}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{action.description}</span>
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400 sm:text-xs">{action.description}</span>
                 </span>
               </button>
             )

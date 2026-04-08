@@ -33,7 +33,7 @@ export default function DashboardCards({ summary, isLoading }) {
         return (
           <article
             key={card.title}
-            className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30"
+            className="rounded-2xl bg-white p-3 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30"
           >
             <div className="mb-4 flex items-start justify-between">
               <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400">{card.title}</h2>
@@ -42,8 +42,8 @@ export default function DashboardCards({ summary, isLoading }) {
               </span>
             </div>
 
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{card.value}</p>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{card.subtitle}</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">{card.value}</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">{card.subtitle}</p>
           </article>
         )
       })}

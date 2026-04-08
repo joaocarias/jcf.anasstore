@@ -264,7 +264,7 @@ export default function Sidebar({
 
   return (
     <>
-      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 flex-col bg-white px-4 py-6 text-gray-700 shadow-2xl dark:bg-gray-900 dark:text-gray-300 lg:flex">
+      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-72 flex-col overflow-y-auto bg-white px-4 py-6 text-gray-700 shadow-2xl dark:bg-gray-900 dark:text-gray-300 lg:flex">
         <SidebarContent
           expandedMenu={expandedMenu}
           onToggleMenu={handleToggleMenu}
@@ -282,7 +282,7 @@ export default function Sidebar({
             onClick={onClose}
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           />
-          <aside className="fixed left-0 top-0 z-50 flex h-screen w-72 flex-col bg-white px-4 py-6 text-gray-700 shadow-2xl dark:bg-gray-900 dark:text-gray-300 lg:hidden">
+          <aside className="fixed left-0 top-0 z-50 flex h-screen w-[85vw] max-w-72 flex-col overflow-y-auto bg-white px-4 py-6 text-gray-700 shadow-2xl dark:bg-gray-900 dark:text-gray-300 lg:hidden">
             <SidebarContent
               expandedMenu={expandedMenu}
               onToggleMenu={handleToggleMenu}

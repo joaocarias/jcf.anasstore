@@ -507,7 +507,7 @@ export default function NewSalePage({ token }) {
     setSummaryError('')
   }
   return (
-    <section className="rounded-2xl bg-white p-4 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
+    <section className="w-full max-w-full rounded-2xl bg-white p-3 sm:p-6 shadow-md transition hover:shadow-xl dark:bg-gray-900 dark:shadow-black/30">
       <header className="mb-5">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nova Venda</h2>
       </header>
@@ -518,14 +518,14 @@ export default function NewSalePage({ token }) {
         </p>
       )}
 
-      <div className="grid gap-4">
-        <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
+      <div className="grid w-full max-w-full gap-4">
+        <label className="grid w-full max-w-full gap-1 text-sm text-gray-700 dark:text-gray-300">
           Cliente (opcional)
-          <div className="flex gap-2">
+          <div className="grid w-full max-w-full grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap">
             <select
               value={selectedCustomerUid}
               onChange={(event) => setSelectedCustomerUid(event.target.value)}
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 sm:flex-1 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="">Selecione</option>
               {customers.map((customer) => (
@@ -537,30 +537,30 @@ export default function NewSalePage({ token }) {
             <button
               type="button"
               onClick={() => setIsNewCustomerOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
+              className="inline-flex w-full max-w-full min-w-0 flex-wrap items-center justify-center gap-1 rounded-lg border border-blue-600 px-2 py-2 text-[10px] font-semibold leading-tight text-blue-700 transition hover:bg-blue-50 sm:w-auto sm:text-xs dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
             >
               <Plus size={14} />
-              Novo Cliente
+              <span className="min-w-0 text-center whitespace-normal break-words">Novo Cliente</span>
             </button>
           </div>
         </label>
 
-        <div className="grid gap-2">
-          <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
+        <div className="grid w-full max-w-full gap-2">
+          <label className="grid w-full max-w-full gap-1 text-sm text-gray-700 dark:text-gray-300">
             Produto
             <input
               type="text"
               value={productSearch}
               onChange={(event) => setProductSearch(event.target.value)}
               placeholder="Pesquisar produto"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full max-w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
             />
           </label>
-          <div className="flex gap-2">
+          <div className="grid w-full max-w-full grid-cols-1 gap-2 sm:flex sm:flex-row sm:flex-wrap">
             <select
               value={selectedVariationUid}
               onChange={(event) => setSelectedVariationUid(event.target.value)}
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 sm:flex-1 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="">Selecione</option>
               {filteredVariations.map((variation) => (
@@ -573,26 +573,26 @@ export default function NewSalePage({ token }) {
             <button
               type="button"
               onClick={handleAddItem}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700"
+              className="inline-flex w-full max-w-full min-w-0 flex-wrap items-center justify-center gap-1 rounded-lg bg-blue-600 px-2 py-2 text-[11px] font-semibold leading-tight text-white shadow-lg transition hover:bg-blue-700 sm:w-auto sm:text-sm"
             >
               <Plus size={14} />
-              Adicionar
+              <span className="min-w-0 text-center whitespace-normal break-words">Adicionar</span>
             </button>
             <button
               type="button"
               onClick={() => setIsNewProductOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
+              className="inline-flex w-full max-w-full min-w-0 flex-wrap items-center justify-center gap-1 rounded-lg border border-blue-600 px-2 py-2 text-[10px] font-semibold leading-tight text-blue-700 transition hover:bg-blue-50 sm:w-auto sm:text-xs dark:border-blue-500 dark:text-blue-300 dark:hover:bg-blue-900/30"
             >
               <Plus size={14} />
-              Novo Produto
+              <span className="min-w-0 text-center whitespace-normal break-words">Novo Produto</span>
             </button>
           </div>
         </div>
 
         <div className="rounded-xl border border-gray-200 p-4 text-sm text-gray-700 dark:border-gray-800 dark:text-gray-200">
           <h3 className="mb-3 text-base font-semibold text-gray-900 dark:text-gray-100">Produtos adicionados</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-xs">
+          <div className="max-w-full overflow-x-auto">
+            <table className="w-full table-fixed text-left text-xs">
               <thead>
                 <tr className="border-b border-gray-100 text-gray-500 dark:border-gray-800 dark:text-gray-400">
                   <th className="py-2 pr-3">Produto</th>
@@ -605,7 +605,7 @@ export default function NewSalePage({ token }) {
               <tbody>
                 {saleItems.map((item) => (
                   <tr key={item.variationUid} className="border-b border-gray-50 dark:border-gray-800">
-                    <td className="py-2 pr-3 font-semibold text-gray-800 dark:text-gray-200">{item.label}</td>
+                    <td className="py-2 pr-2 font-semibold text-gray-800 break-words dark:text-gray-200">{item.label}</td>
                     <td className="py-2 pr-3">
                       <div className="inline-flex items-center gap-2">
                         <button
@@ -625,7 +625,9 @@ export default function NewSalePage({ token }) {
                         </button>
                       </div>
                     </td>
-                    <td className="py-2 pr-3">{item.unitPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td className="py-2 pr-3">
+                      {item.unitPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </td>
                     <td className="py-2 pr-3">{item.totalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td className="py-2 text-right">
                       <button
@@ -651,14 +653,14 @@ export default function NewSalePage({ token }) {
         </div>
 
         <div className="grid gap-2">
-          <div className="grid gap-2 md:grid-cols-2">
-            <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-              Forma de pagamento
-              <select
-                value={selectedPaymentMethodUid}
-                onChange={(event) => handlePaymentMethodChange(event.target.value)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-              >
+        <div className="grid w-full max-w-full gap-2 md:grid-cols-2">
+          <label className="grid w-full max-w-full gap-1 text-sm text-gray-700 dark:text-gray-300">
+            Forma de pagamento
+            <select
+              value={selectedPaymentMethodUid}
+              onChange={(event) => handlePaymentMethodChange(event.target.value)}
+              className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+            >
                 <option value="">Selecione</option>
                 {orderedPaymentMethods.map((method) => (
                   <option key={method.uid} value={method.uid}>
@@ -668,9 +670,9 @@ export default function NewSalePage({ token }) {
               </select>
             </label>
 
-            <label className="grid gap-1 text-sm text-gray-700 dark:text-gray-300">
-              Parcelas
-              <input
+          <label className="grid w-full max-w-full gap-1 text-sm text-gray-700 dark:text-gray-300">
+            Parcelas
+            <input
                 type="number"
                 min="1"
                 max={maxInstallments}
@@ -683,10 +685,10 @@ export default function NewSalePage({ token }) {
                   }
                   setInstallments(Math.min(Math.max(value, 1), maxInstallments))
                 }}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-              />
-            </label>
-          </div>
+              className="w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+            />
+          </label>
+        </div>
           <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300">
             <span>Subtotal</span>
             <span>{totals.subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
@@ -701,7 +703,7 @@ export default function NewSalePage({ token }) {
                 const parsed = parsePercentInput(event.target.value)
                 setDiscountPercent(Math.min(Math.max(parsed, 0), 100))
               }}
-              className="w-32 rounded-lg border border-gray-300 px-3 py-1.5 text-right text-sm outline-none focus:border-blue-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              className="w-28 rounded-lg border border-gray-300 px-3 py-1.5 text-right text-sm outline-none focus:border-blue-600 sm:w-32 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
           <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-100">
@@ -710,12 +712,12 @@ export default function NewSalePage({ token }) {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex w-full max-w-full justify-end">
           <button
             type="button"
             disabled={isSubmitting}
             onClick={handleFinalizeSale}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-70"
+            className="inline-flex w-full max-w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-70 sm:w-auto"
           >
             {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {isSubmitting ? 'Finalizando...' : 'Finalizar Venda'}

@@ -12,8 +12,8 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
   }, [session])
 
   return (
-    <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-900 sm:px-6">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-3 dark:border-gray-800 dark:bg-gray-900 sm:h-20 sm:px-6">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onToggleSidebar}
@@ -26,7 +26,7 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
 
       </div>
 
-      <div className="relative flex items-center gap-2">
+      <div className="relative flex items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onToggleTheme}
@@ -40,7 +40,7 @@ export default function Header({ session, onLogout, theme, onToggleTheme, onTogg
           onClick={() => setIsMenuOpen((current) => !current)}
           className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 shadow-sm transition-all duration-200 hover:border-blue-600 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-500 dark:hover:text-blue-400 sm:px-4 sm:text-sm"
         >
-          <span className="max-w-[140px] truncate sm:max-w-none">
+          <span className="max-w-[120px] truncate sm:max-w-[220px]">
             {"Ol\u00e1, "}{firstName}
           </span>
           <ChevronDown size={16} />

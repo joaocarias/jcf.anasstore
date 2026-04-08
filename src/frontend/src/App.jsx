@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
-import { KeyRound, LogIn, Mail, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, KeyRound, LogIn, Mail, ShieldCheck } from 'lucide-react'
 import AccessRulesPage from './components/AccessRulesPage'
 import CategoriesPage from './components/CategoriesPage'
 import ColorsPage from './components/ColorsPage'
@@ -127,6 +127,7 @@ function navigate(path, replace = false) {
 function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -214,14 +215,22 @@ function LoginPage({ onLogin }) {
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
               <input
-                className="field-input !pl-10"
-                type="password"
+                className="field-input !pl-10 !pr-10"
+                type={isPasswordVisible ? 'text' : 'password'}
                 autoComplete="current-password"
                 placeholder="Digite sua senha"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setIsPasswordVisible((current) => !current)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600"
+                aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {isPasswordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </label>
 
@@ -278,7 +287,7 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
         currentPage={currentPage}
       />
 
-      <div className="flex-1 lg:ml-72">
+      <div className="min-w-0 flex-1 overflow-x-hidden lg:ml-72">
         <Header
           session={session}
           onLogout={onLogout}
