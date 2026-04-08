@@ -1,4 +1,5 @@
 using Jcf.AnasStore.Application;
+using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Infrastructure;
 using Jcf.AnasStore.Infrastructure.Persistence;
 using Jcf.AnasStore.Infrastructure.Security;
@@ -52,6 +53,15 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 await ApplyMigrationsAndSeedAsync(app);
+
+if (app.Environment.IsProduction())
+{
+    var jwt = app.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+    if (jwt is null || string.IsNullOrWhiteSpace(jwt.SigningKey) || jwt.SigningKey.Equals("CHANGE_ME", StringComparison.OrdinalIgnoreCase))
+    {
+        throw new InvalidOperationException("JwtSettings:SigningKey must be configured with a secure value in production.");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

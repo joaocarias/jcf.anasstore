@@ -4,9 +4,9 @@ services:
     container_name: anasstore-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: anasstore
-      POSTGRES_USER: anasstore
-      POSTGRES_PASSWORD: anasstore
+      POSTGRES_DB: ${POSTGRES_DB?Defina POSTGRES_DB no .env}
+      POSTGRES_USER: ${POSTGRES_USER?Defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Defina POSTGRES_PASSWORD no .env}
     volumes:
       - anasstore_db:/var/lib/postgresql/data
     ports:
@@ -19,9 +19,16 @@ services:
     container_name: anasstore-backend
     restart: unless-stopped
     environment:
-      ASPNETCORE_URLS: http://+:8080
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Username=anasstore;Password=anasstore;Database=anasstore
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS?Defina ASPNETCORE_URLS no .env}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT?Defina ASPNETCORE_ENVIRONMENT no .env}
+      ConnectionStrings__DefaultConnection: ${DB_CONNECTION?Defina DB_CONNECTION no .env}
+      JwtSettings__SigningKey: ${JwtSettings__SigningKey?Defina JwtSettings__SigningKey no .env}
+      JwtSettings__Issuer: ${JwtSettings__Issuer?Defina JwtSettings__Issuer no .env}
+      JwtSettings__Audience: ${JwtSettings__Audience?Defina JwtSettings__Audience no .env}
+      JwtSettings__ExpirationMinutes: ${JwtSettings__ExpirationMinutes?Defina JwtSettings__ExpirationMinutes no .env}
+      Database__AutoMigrate: ${Database__AutoMigrate?Defina Database__AutoMigrate no .env}
+      Seed__EnableLookupSeed: ${Seed__EnableLookupSeed?Defina Seed__EnableLookupSeed no .env}
+      Seed__EnableDefaultUsers: ${Seed__EnableDefaultUsers?Defina Seed__EnableDefaultUsers no .env}
     depends_on:
       - db
     ports:
@@ -35,6 +42,8 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL?Defina VITE_API_BASE_URL no .env}
     ports:
       - "5173:80"
 
