@@ -294,10 +294,12 @@ export default function UsersListPage({ token }) {
       }
 
       const payload = await response.json().catch(() => null)
-      if (payload?.generatedPassword) {
+      if (payload?.message) {
+        setSuccessMessage(payload.message)
+      } else if (payload?.generatedPassword) {
         setSuccessMessage(`Senha resetada: ${payload.generatedPassword}`)
       } else {
-        setSuccessMessage('Senha resetada com sucesso.')
+        setSuccessMessage('Link de redefinicao enviado com sucesso.')
       }
       setUserPendingReset(null)
     } catch {

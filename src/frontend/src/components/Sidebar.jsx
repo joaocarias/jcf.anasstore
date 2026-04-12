@@ -181,6 +181,28 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
 
         <SidebarItem
           icon={Settings}
+          label="Utilidades"
+          active={expandedMenu === 'Utilidades'}
+          hasChildren
+          expanded={expandedMenu === 'Utilidades'}
+          onClick={() => onToggleMenu('Utilidades')}
+        />
+        {expandedMenu === 'Utilidades' && (
+          <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
+            <SidebarSubItem
+              icon={Tags}
+              label="Etiquetas"
+              active={currentPage === 'labels'}
+              onClick={() => {
+                onNavigate('labels')
+                onClose()
+              }}
+            />
+          </div>
+        )}
+
+        <SidebarItem
+          icon={Settings}
           label="Configurações"
           active={expandedMenu === 'Configurações'}
           hasChildren

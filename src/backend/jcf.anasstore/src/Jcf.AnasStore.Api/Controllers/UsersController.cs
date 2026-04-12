@@ -1,20 +1,30 @@
+using System.Net;
 using System.Security.Claims;
 using Jcf.AnasStore.Api.Contracts.Common;
 using Jcf.AnasStore.Api.Contracts.Users;
+using Jcf.AnasStore.Api.Options;
+using Jcf.AnasStore.Application.Abstractions.Notifications;
 using Jcf.AnasStore.Infrastructure.Identity;
 using Jcf.AnasStore.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Jcf.AnasStore.Api.Controllers;
 
 [ApiController]
 [Authorize(Roles = $"{IdentitySeeder.AdminRoleName},{IdentitySeeder.ManagerRoleName},{IdentitySeeder.AuditorRoleName}")]
 [Route("api/[controller]")]
-public sealed class UsersController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager) : ControllerBase
+public sealed class UsersController(
+    UserManager<AppUser> userManager,
+    RoleManager<AppRole> roleManager,
+    IEmailSender emailSender,
+    IOptions<PasswordResetOptions> resetOptions) : ControllerBase
 {
+    private readonly PasswordResetOptions _resetOptions = resetOptions.Value ?? new PasswordResetOptions();
+
     /// <summary>
     /// Lists all users.
     /// </summary>
@@ -213,7 +223,7 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
     }
 
     /// <summary>
-    /// Resets a user password using system rule.
+    /// Sends a password reset link to the user email.
     /// </summary>
     [Authorize(Roles = $"{IdentitySeeder.AdminRoleName},{IdentitySeeder.ManagerRoleName}")]
     [HttpPost("{uid:guid}/reset-password")]
@@ -228,13 +238,27 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
             return NotFound();
         }
 
-        var generatedPassword = GenerateResetPassword(user.Name, DateTime.Now);
-        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
-        var resetResult = await userManager.ResetPasswordAsync(user, resetToken, generatedPassword);
-        if (!resetResult.Succeeded)
+        if (string.IsNullOrWhiteSpace(user.Email))
         {
-            return BadRequest(new { errors = resetResult.Errors.Select(x => x.Description).ToArray() });
+            return BadRequest(new { message = "Usuario nao possui email cadastrado." });
         }
+
+        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+        var resetLink = BuildResetLink(user.Uid, resetToken);
+
+        var htmlBody = $"""
+            <p>Ola, {WebUtility.HtmlEncode(user.Name)}.</p>
+            <p>Recebemos uma solicitacao para redefinir sua senha. Para continuar, clique no link abaixo:</p>
+            <p><a href="{WebUtility.HtmlEncode(resetLink)}">Redefinir senha</a></p>
+            <p>Se voce nao solicitou essa alteracao, ignore este email.</p>
+            """;
+
+        await emailSender.SendAsync(
+            new EmailRequest(
+                user.Email,
+                "Redefinicao de senha",
+                htmlBody),
+            cancellationToken);
 
         user.UpdateAt = DateTime.UtcNow;
         user.UserUpdateId = GetCurrentUserId();
@@ -244,7 +268,7 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
             return BadRequest(new { errors = updateResult.Errors.Select(x => x.Description).ToArray() });
         }
 
-        return Ok(new ResetPasswordResponse(generatedPassword));
+        return Ok(new ResetPasswordResponse($"Link de redefinicao enviado para {user.Email}."));
     }
 
     private static string GenerateInitialPassword(string name, DateTime currentDate)
@@ -253,10 +277,18 @@ public sealed class UsersController(UserManager<AppUser> userManager, RoleManage
         return $"{firstLetter}ana@{currentDate:MMdd}";
     }
 
-    private static string GenerateResetPassword(string name, DateTime currentDate)
+    private string BuildResetLink(Guid userUid, string token)
     {
-        var firstLetter = GetFirstLetter(name);
-        return $"{firstLetter}Mudar@{currentDate:MMdd}";
+        var baseUrl = _resetOptions.BaseUrl;
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            baseUrl = $"{Request.Scheme}://{Request.Host}";
+        }
+
+        var normalizedBase = baseUrl.TrimEnd('/');
+        var normalizedPath = (_resetOptions.Path ?? "/reset-password").TrimStart('/');
+
+        return $"{normalizedBase}/{normalizedPath}?uid={userUid:D}&token={WebUtility.UrlEncode(token)}";
     }
 
     private static char GetFirstLetter(string name)

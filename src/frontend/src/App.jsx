@@ -8,6 +8,7 @@ import DashboardHome from './components/DashboardHome'
 import GenresPage from './components/GenresPage'
 import Header from './components/Header'
 import ItemSizesPage from './components/ItemSizesPage'
+import LabelsPage from './components/LabelsPage'
 import NewSalePage from './components/NewSalePage'
 import OrganizationPage from './components/OrganizationPage'
 import PaymentMethodsPage from './components/PaymentMethodsPage'
@@ -21,6 +22,7 @@ import UsersListPage from './components/UsersListPage'
 const SESSION_KEY = 'anasstore.session'
 const THEME_KEY = 'anasstore.theme'
 const LOGIN_PATH = '/login'
+const RESET_PASSWORD_PATH = '/reset-password'
 const DASHBOARD_PATH = '/dashboard'
 const CUSTOMERS_PATH = '/customers'
 const PRODUCTS_PATH = '/products'
@@ -36,6 +38,7 @@ const GENRES_PATH = '/genres'
 const ITEM_SIZES_PATH = '/item-sizes'
 const PAYMENT_METHODS_PATH = '/payment-methods'
 const ORGANIZATION_PATH = '/organization'
+const LABELS_PATH = '/labels'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 const TOKEN_REFRESH_WINDOW_MS = 5 * 60 * 1000
 const TOKEN_REFRESH_CHECK_INTERVAL_MS = 30 * 1000
@@ -113,6 +116,11 @@ function getCurrentPath() {
     return rawPath.slice(0, -1)
   }
   return rawPath
+}
+
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search)
+  return params.get(name) ?? ''
 }
 
 function navigate(path, replace = false) {
@@ -249,7 +257,261 @@ function LoginPage({ onLogin }) {
               </>
             )}
           </button>
+
+          <button
+            type="button"
+            className="text-sm font-semibold text-gray-600 transition hover:text-gray-900"
+            onClick={() => navigate(RESET_PASSWORD_PATH)}
+          >
+            Esqueci minha senha
+          </button>
         </form>
+      </section>
+    </main>
+  )
+}
+
+function ResetPasswordPage() {
+  const initialEmail = getQueryParam('email')
+  const [activeTab, setActiveTab] = useState(initialEmail ? 'confirm' : 'request')
+  const [email, setEmail] = useState(initialEmail)
+  const [tempPassword, setTempPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [message, setMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleRequest(event) {
+    event.preventDefault()
+    setErrorMessage('')
+    setMessage('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/Auth/request-password-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const payload = await response.json().catch(() => null)
+      if (!response.ok) {
+        const msg = payload?.message || 'Nao foi possivel solicitar a senha temporaria.'
+        setErrorMessage(msg)
+        return
+      }
+
+      setMessage(payload?.message || 'Senha temporaria enviada para seu email.')
+      setActiveTab('confirm')
+    } catch {
+      setErrorMessage('Nao foi possivel solicitar a senha temporaria.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleConfirm(event) {
+    event.preventDefault()
+    setErrorMessage('')
+    setMessage('')
+
+    if (!tempPassword || !newPassword) {
+      setErrorMessage('Informe a senha temporaria e a nova senha.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage('A confirmacao da senha nao confere.')
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/Auth/confirm-password-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, temporaryPassword: tempPassword, newPassword }),
+      })
+
+      const payload = await response.json().catch(() => null)
+      if (!response.ok) {
+        let msg = payload?.message || 'Nao foi possivel atualizar a senha.'
+        if (Array.isArray(payload?.errors) && payload.errors.length > 0) {
+          msg = payload.errors.join(' ')
+        }
+        setErrorMessage(msg)
+        return
+      }
+
+      setMessage(payload?.message || 'Senha atualizada com sucesso.')
+      setTempPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch {
+      setErrorMessage('Nao foi possivel atualizar a senha.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <main className="login-shell">
+      <section className="login-card">
+        <header className="title-block">
+          <p className="brand-tag">ANA&apos;S STORE</p>
+          <h1>Resetar senha</h1>
+          <p>Receba uma senha temporaria e finalize a troca com uma nova senha.</p>
+        </header>
+
+        <div className="mb-4 flex gap-2">
+          <button
+            type="button"
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              activeTab === 'request'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+            onClick={() => setActiveTab('request')}
+          >
+            Solicitar senha
+          </button>
+          <button
+            type="button"
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              activeTab === 'confirm'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+            onClick={() => setActiveTab('confirm')}
+          >
+            Trocar senha
+          </button>
+        </div>
+
+        {activeTab === 'request' ? (
+          <form className="form-grid" onSubmit={handleRequest}>
+            <label className="field">
+              <span className="field-label">E-mail</span>
+              <div className="relative">
+                <Mail
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  className="field-input !pl-10"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="seuemail@anastore.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
+            </label>
+
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            {message && <p className="success-message">{message}</p>}
+
+            <button type="submit" className="login-button inline-flex items-center justify-center gap-2" disabled={isLoading}>
+              {isLoading ? 'Enviando...' : 'Enviar senha temporaria'}
+            </button>
+          </form>
+        ) : (
+          <form className="form-grid" onSubmit={handleConfirm}>
+            <label className="field">
+              <span className="field-label">E-mail</span>
+              <div className="relative">
+                <Mail
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  className="field-input !pl-10"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="seuemail@anastore.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
+            </label>
+
+            <label className="field">
+              <span className="field-label">Senha temporaria</span>
+              <div className="relative">
+                <KeyRound
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  className="field-input !pl-10"
+                  type="password"
+                  autoComplete="one-time-code"
+                  placeholder="Digite a senha temporaria"
+                  value={tempPassword}
+                  onChange={(event) => setTempPassword(event.target.value)}
+                  required
+                />
+              </div>
+            </label>
+
+            <label className="field">
+              <span className="field-label">Nova senha</span>
+              <div className="relative">
+                <KeyRound
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  className="field-input !pl-10"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Digite a nova senha"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  required
+                />
+              </div>
+            </label>
+
+            <label className="field">
+              <span className="field-label">Confirmar nova senha</span>
+              <div className="relative">
+                <KeyRound
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  className="field-input !pl-10"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Confirme a nova senha"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  required
+                />
+              </div>
+            </label>
+
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            {message && <p className="success-message">{message}</p>}
+
+            <button type="submit" className="login-button inline-flex items-center justify-center gap-2" disabled={isLoading}>
+              {isLoading ? 'Atualizando...' : 'Atualizar senha'}
+            </button>
+          </form>
+        )}
+
+        <button
+          type="button"
+          className="mt-4 text-sm font-semibold text-gray-600 transition hover:text-gray-900"
+          onClick={() => navigate(LOGIN_PATH)}
+        >
+          Voltar para o login
+        </button>
       </section>
     </main>
   )
@@ -273,6 +535,7 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
       [ITEM_SIZES_PATH]: 'item-sizes',
       [PAYMENT_METHODS_PATH]: 'payment-methods',
       [ORGANIZATION_PATH]: 'organization',
+      [LABELS_PATH]: 'labels',
     }[currentPath] ?? 'dashboard'
 
   const isAdmin = (session?.roles ?? getRolesFromToken(session?.token ?? '')).includes('Admin')
@@ -316,6 +579,7 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
           {currentPage === 'item-sizes' && <ItemSizesPage token={session.token} />}
           {currentPage === 'payment-methods' && <PaymentMethodsPage token={session.token} />}
           {currentPage === 'organization' && <OrganizationPage token={session.token} isAdmin={isAdmin} />}
+          {currentPage === 'labels' && <LabelsPage token={session.token} />}
         </div>
       </div>
     </main>
@@ -343,7 +607,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!session && path !== LOGIN_PATH) {
+    if (!session && path !== LOGIN_PATH && path !== RESET_PASSWORD_PATH) {
       navigate(LOGIN_PATH, true)
       return
     }
@@ -384,7 +648,6 @@ function App() {
 
         return response
       } catch (error) {
-        handleLogout()
         throw error
       }
     }
@@ -513,6 +776,11 @@ function App() {
       return
     }
 
+    if (page === 'labels') {
+      navigate(LABELS_PATH)
+      return
+    }
+
     navigate(DASHBOARD_PATH)
   }
 
@@ -592,6 +860,9 @@ function App() {
   }, [session])
 
   if (!session) {
+    if (path === RESET_PASSWORD_PATH) {
+      return <ResetPasswordPage />
+    }
     return <LoginPage onLogin={handleLogin} />
   }
 
@@ -611,7 +882,8 @@ function App() {
     currentPath === GENRES_PATH ||
     currentPath === ITEM_SIZES_PATH ||
     currentPath === PAYMENT_METHODS_PATH ||
-    currentPath === ORGANIZATION_PATH
+    currentPath === ORGANIZATION_PATH ||
+    currentPath === LABELS_PATH
   ) {
     return (
       <DashboardPage

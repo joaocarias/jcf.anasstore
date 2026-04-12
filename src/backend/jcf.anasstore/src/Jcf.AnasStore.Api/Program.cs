@@ -3,6 +3,7 @@ using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Infrastructure;
 using Jcf.AnasStore.Infrastructure.Persistence;
 using Jcf.AnasStore.Infrastructure.Security;
+using Jcf.AnasStore.Api.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -11,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.Configure<PasswordResetOptions>(
+    builder.Configuration.GetSection(PasswordResetOptions.SectionName));
 builder.Services.AddAuthorizationBuilder()
     .SetFallbackPolicy(new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
