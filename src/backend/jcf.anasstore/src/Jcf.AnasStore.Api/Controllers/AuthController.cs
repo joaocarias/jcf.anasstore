@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace Jcf.AnasStore.Api.Controllers;
 
@@ -184,6 +185,27 @@ public sealed class AuthController(
         return Ok(new ConfirmPasswordResetResponse("Senha atualizada com sucesso."));
     }
 
+    internal static string GenerateSecurePassword(int length)
+    {
+        const string upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        const string lower = "abcdefghjkmnpqrstuvwxyz";
+        const string digits = "23456789";
+        const string special = "@#!%*?&";
+        const string all = upper + lower + digits + special;
+
+        var chars = new char[length];
+        chars[0] = upper[RandomNumberGenerator.GetInt32(upper.Length)];
+        chars[1] = lower[RandomNumberGenerator.GetInt32(lower.Length)];
+        chars[2] = digits[RandomNumberGenerator.GetInt32(digits.Length)];
+        chars[3] = special[RandomNumberGenerator.GetInt32(special.Length)];
+        for (var i = 4; i < length; i++)
+        {
+            chars[i] = all[RandomNumberGenerator.GetInt32(all.Length)];
+        }
+        RandomNumberGenerator.Shuffle(chars.AsSpan());
+        return new string(chars);
+    }
+
     private string BuildResetLink(string email)
     {
         var baseUrl = _resetOptions.BaseUrl;
@@ -199,9 +221,5 @@ public sealed class AuthController(
         return $"{normalizedBase}/{normalizedPath}?email={encodedEmail}";
     }
 
-    private static string GenerateTemporaryPassword()
-    {
-        var random = Random.Shared.Next(100000, 999999);
-        return $"Temp@{random}A";
-    }
+    private static string GenerateTemporaryPassword() => GenerateSecurePassword(16);
 }

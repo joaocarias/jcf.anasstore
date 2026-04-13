@@ -13,13 +13,15 @@ public sealed class LabelService : ILabelService
     private const float LabelWidthMm      = 26.0f;
     private const float LabelHeightMm     = 15.0f;
     private const float HGapMm            = 2.0f;   // espaço horizontal entre etiquetas
+    private const float VGapMm            = 1.0f;   // espaço vertical entre linhas de etiquetas
+    private const float LabelTopPaddingMm = 1.0f;   // margem interna superior da etiqueta
     private const int   LabelsPerRow      = 7;
     private const int   RowsPerHalf       = 9;       // 18 linhas totais / 2 metades
     private const float LeftMarginMm      = 8.0f;
     private const float RightMarginMm     = 8.0f;
     private const float TopMarginMm       = 13.0f;
-    private const float PageWidthMm       = 210f;
-    private const float PageHeightMm      = 297f;
+    private const float PageWidthMm       = 210f;   // A4
+    private const float PageHeightMm      = 297f;   // A4
 
     public byte[] GenerateLabelsPdf(List<ProductLabelDto> labels)
     {
@@ -106,7 +108,7 @@ public sealed class LabelService : ILabelService
             .PaddingRight(RightMarginMm, Unit.Millimetre)
             .Column(column =>
             {
-                column.Spacing(0);
+                column.Spacing(VGapMm, Unit.Millimetre);
                 RenderLabelsGrid(column, labels, totalRows);
                 RenderLabelsGrid(column, labels, totalRows);
             });
@@ -130,7 +132,7 @@ public sealed class LabelService : ILabelService
 
                     rowDescriptor.ConstantItem(LabelWidthMm, Unit.Millimetre)
                         .Height(LabelHeightMm, Unit.Millimetre)
-                        .Padding(1.0f)
+                        .PaddingTop(LabelTopPaddingMm, Unit.Millimetre)
                         .DefaultTextStyle(x => x.FontSize(6).FontColor("#000000"))
                         .Column(labelColumn =>
                         {

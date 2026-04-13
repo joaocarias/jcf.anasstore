@@ -15,7 +15,9 @@
       "Bash(cmd /c \"powershell -Command \\\\\"Get-Process -Id 20504 -ErrorAction SilentlyContinue | Select-Object Id,Name,Path\\\\\"\")",
       "Bash(cmd /c \"rd /s /q \\\\\"C:\\\\Users\\\\jfran\\\\source\\\\projects\\\\jcf.anasstore\\\\src\\\\backend\\\\jcf.anasstore\\\\src\\\\Jcf.AnasStore.Api\\\\bin\\\\\" 2>&1 && echo deleted\")",
       "Bash(cmd /c \"rd /s /q \\\\\"C:\\\\Users\\\\jfran\\\\source\\\\projects\\\\jcf.anasstore\\\\src\\\\backend\\\\jcf.anasstore\\\\src\\\\Jcf.AnasStore.Api\\\\obj\\\\\" 2>&1 && echo deleted\")",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(find /c/Users/jfran/source/projects/jcf.anasstore/src/backend -name \"*.csproj\" -type f -exec grep -l \"FluentValidation\\\\|DataAnnotations\" {} \\\\;)",
+      "Bash(git -C /c/Users/jfran/source/projects/jcf.anasstore log --oneline -20)"
     ]
   }
 }

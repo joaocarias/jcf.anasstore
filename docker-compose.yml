@@ -9,8 +9,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Defina POSTGRES_PASSWORD no .env}
     volumes:
       - anasstore_db:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
 
   backend:
     build:

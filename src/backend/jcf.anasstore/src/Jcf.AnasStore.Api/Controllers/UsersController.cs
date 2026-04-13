@@ -273,8 +273,9 @@ public sealed class UsersController(
 
     private static string GenerateInitialPassword(string name, DateTime currentDate)
     {
-        var firstLetter = GetFirstLetter(name);
-        return $"{firstLetter}ana@{currentDate:MMdd}";
+        _ = name;
+        _ = currentDate;
+        return AuthController.GenerateSecurePassword(16);
     }
 
     private string BuildResetLink(Guid userUid, string token)
@@ -289,14 +290,6 @@ public sealed class UsersController(
         var normalizedPath = (_resetOptions.Path ?? "/reset-password").TrimStart('/');
 
         return $"{normalizedBase}/{normalizedPath}?uid={userUid:D}&token={WebUtility.UrlEncode(token)}";
-    }
-
-    private static char GetFirstLetter(string name)
-    {
-        var trimmed = name?.Trim();
-        return string.IsNullOrWhiteSpace(trimmed)
-            ? 'A'
-            : char.ToUpperInvariant(trimmed[0]);
     }
 
     private async Task<UserResponse> ToResponseAsync(AppUser user)

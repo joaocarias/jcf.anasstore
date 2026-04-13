@@ -60,6 +60,11 @@ public static class DependencyInjection
         services.AddIdentityCore<AppUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
             })
             .AddRoles<AppRole>()
             .AddTokenProvider<DataProtectorTokenProvider<AppUser>>(TokenOptions.DefaultProvider)
@@ -138,6 +143,7 @@ public static class DependencyInjection
         services.AddScoped<ISalesRepository, SalesRepository>();
         services.AddScoped<IPaymentMethodsRepository, PaymentMethodsRepository>();
         services.AddScoped<ISalesReadRepository>(_ => new SalesReadRepository(connectionString));
+        services.AddScoped<IReportsReadRepository>(_ => new ReportsReadRepository(connectionString));
         services.AddScoped<IRolesReadRepository>(_ => new RolesReadRepository(connectionString));
         services.AddScoped<IProductsReadRepository>(_ => new ProductsReadRepository(connectionString));
         services.AddScoped<IProductVariationsReadRepository>(_ => new ProductVariationsReadRepository(connectionString));

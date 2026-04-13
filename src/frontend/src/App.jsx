@@ -1,6 +1,8 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { Eye, EyeOff, KeyRound, LogIn, Mail, ShieldCheck } from 'lucide-react'
+import AbcReportPage from './components/AbcReportPage'
 import AccessRulesPage from './components/AccessRulesPage'
+import CashFlowReportPage from './components/CashFlowReportPage'
 import CategoriesPage from './components/CategoriesPage'
 import ColorsPage from './components/ColorsPage'
 import CustomersListPage from './components/CustomersListPage'
@@ -15,6 +17,7 @@ import PaymentMethodsPage from './components/PaymentMethodsPage'
 import ProductsPage from './components/ProductsPage'
 import ProfilePage from './components/ProfilePage'
 import SalesHistoryPage from './components/SalesHistoryPage'
+import SalesReportPage from './components/SalesReportPage'
 import Sidebar from './components/Sidebar'
 import SuppliersPage from './components/SuppliersPage'
 import UsersListPage from './components/UsersListPage'
@@ -39,6 +42,9 @@ const ITEM_SIZES_PATH = '/item-sizes'
 const PAYMENT_METHODS_PATH = '/payment-methods'
 const ORGANIZATION_PATH = '/organization'
 const LABELS_PATH = '/labels'
+const REPORT_SALES_PATH = '/reports/sales'
+const REPORT_ABC_PATH = '/reports/abc'
+const REPORT_CASH_FLOW_PATH = '/reports/cash-flow'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 const TOKEN_REFRESH_WINDOW_MS = 5 * 60 * 1000
 const TOKEN_REFRESH_CHECK_INTERVAL_MS = 30 * 1000
@@ -536,6 +542,9 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
       [PAYMENT_METHODS_PATH]: 'payment-methods',
       [ORGANIZATION_PATH]: 'organization',
       [LABELS_PATH]: 'labels',
+      [REPORT_SALES_PATH]: 'report-sales',
+      [REPORT_ABC_PATH]: 'report-abc',
+      [REPORT_CASH_FLOW_PATH]: 'report-cash-flow',
     }[currentPath] ?? 'dashboard'
 
   const isAdmin = (session?.roles ?? getRolesFromToken(session?.token ?? '')).includes('Admin')
@@ -580,6 +589,9 @@ function DashboardPage({ session, onLogout, theme, onToggleTheme, currentPath, o
           {currentPage === 'payment-methods' && <PaymentMethodsPage token={session.token} />}
           {currentPage === 'organization' && <OrganizationPage token={session.token} isAdmin={isAdmin} />}
           {currentPage === 'labels' && <LabelsPage token={session.token} />}
+          {currentPage === 'report-sales' && <SalesReportPage token={session.token} />}
+          {currentPage === 'report-abc' && <AbcReportPage token={session.token} />}
+          {currentPage === 'report-cash-flow' && <CashFlowReportPage token={session.token} />}
         </div>
       </div>
     </main>
@@ -781,6 +793,21 @@ function App() {
       return
     }
 
+    if (page === 'report-sales') {
+      navigate(REPORT_SALES_PATH)
+      return
+    }
+
+    if (page === 'report-abc') {
+      navigate(REPORT_ABC_PATH)
+      return
+    }
+
+    if (page === 'report-cash-flow') {
+      navigate(REPORT_CASH_FLOW_PATH)
+      return
+    }
+
     navigate(DASHBOARD_PATH)
   }
 
@@ -883,7 +910,10 @@ function App() {
     currentPath === ITEM_SIZES_PATH ||
     currentPath === PAYMENT_METHODS_PATH ||
     currentPath === ORGANIZATION_PATH ||
-    currentPath === LABELS_PATH
+    currentPath === LABELS_PATH ||
+    currentPath === REPORT_SALES_PATH ||
+    currentPath === REPORT_ABC_PATH ||
+    currentPath === REPORT_CASH_FLOW_PATH
   ) {
     return (
       <DashboardPage
