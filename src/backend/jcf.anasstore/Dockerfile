@@ -12,7 +12,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
 WORKDIR /app
 COPY --from=build /app/publish ./
 
-RUN adduser --disabled-password --gecos "" --uid 1001 appuser \
+RUN useradd -m -u 1001 -s /bin/bash appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
