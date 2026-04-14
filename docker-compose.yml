@@ -1,21 +1,4 @@
 services:
-  db:
-    image: postgres:16
-    container_name: anasstore-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB?Defina POSTGRES_DB no .env}
-      POSTGRES_USER: ${POSTGRES_USER?Defina POSTGRES_USER no .env}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Defina POSTGRES_PASSWORD no .env}
-    volumes:
-      - anasstore_db:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   backend:
     build:
       context: ./src/backend/jcf.anasstore
@@ -33,9 +16,6 @@ services:
       Database__AutoMigrate: ${Database__AutoMigrate?Defina Database__AutoMigrate no .env}
       Seed__EnableLookupSeed: ${Seed__EnableLookupSeed?Defina Seed__EnableLookupSeed no .env}
       Seed__EnableDefaultUsers: ${Seed__EnableDefaultUsers?Defina Seed__EnableDefaultUsers no .env}
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
       - "5117:8080"
 
@@ -53,5 +33,3 @@ services:
     ports:
       - "5173:80"
 
-volumes:
-  anasstore_db:
