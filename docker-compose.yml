@@ -9,6 +9,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Defina POSTGRES_PASSWORD no .env}
     volumes:
       - anasstore_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   backend:
     build:
@@ -28,7 +34,8 @@ services:
       Seed__EnableLookupSeed: ${Seed__EnableLookupSeed?Defina Seed__EnableLookupSeed no .env}
       Seed__EnableDefaultUsers: ${Seed__EnableDefaultUsers?Defina Seed__EnableDefaultUsers no .env}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "5117:8080"
 
@@ -39,7 +46,8 @@ services:
     container_name: anasstore-frontend
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL?Defina VITE_API_BASE_URL no .env}
     ports:
