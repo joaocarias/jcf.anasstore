@@ -3,6 +3,7 @@ WORKDIR /src
 
 COPY jcf.anasstore.slnx ./
 COPY src/ ./src/
+COPY tests/ ./tests/
 
 RUN dotnet restore jcf.anasstore.slnx
 RUN dotnet publish src/Jcf.AnasStore.Api/Jcf.AnasStore.Api.csproj -c Release -o /app/publish
