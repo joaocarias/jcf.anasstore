@@ -1,6 +1,8 @@
 using System.Text;
 using Jcf.AnasStore.Application.Abstractions.Cqrs;
 using Jcf.AnasStore.Application.Abstractions.Data;
+using Jcf.AnasStore.Application.Services.Labels;
+using Jcf.AnasStore.Application.Abstractions.Notifications;
 using Jcf.AnasStore.Application.Abstractions.Persistence;
 using Jcf.AnasStore.Application.Abstractions.Security;
 using Jcf.AnasStore.Application.Features.Auth.Login;
@@ -28,6 +30,7 @@ using Jcf.AnasStore.Application.Features.Sales.GetSalesHistory;
 using Jcf.AnasStore.Application.Features.Sales.GetRecentSales;
 using Jcf.AnasStore.Infrastructure.Cqrs;
 using Jcf.AnasStore.Infrastructure.Data;
+using Jcf.AnasStore.Infrastructure.Email;
 using Jcf.AnasStore.Infrastructure.Identity;
 using Jcf.AnasStore.Infrastructure.Persistence;
 using Jcf.AnasStore.Infrastructure.Security;
@@ -38,6 +41,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
 using System.Text.Json;
 
 namespace Jcf.AnasStore.Infrastructure;
@@ -51,9 +55,16 @@ public static class DependencyInjection
 
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
+        services.AddOptions();
+
         services.AddIdentityCore<AppUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
             })
             .AddRoles<AppRole>()
             .AddTokenProvider<DataProtectorTokenProvider<AppUser>>(TokenOptions.DefaultProvider)
@@ -125,10 +136,14 @@ public static class DependencyInjection
 
         services.AddAuthorization();
 
+        ConfigureResend(services, configuration);
+
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        services.AddScoped<ILabelService, LabelService>();
         services.AddScoped<ISalesRepository, SalesRepository>();
         services.AddScoped<IPaymentMethodsRepository, PaymentMethodsRepository>();
         services.AddScoped<ISalesReadRepository>(_ => new SalesReadRepository(connectionString));
+        services.AddScoped<IReportsReadRepository>(_ => new ReportsReadRepository(connectionString));
         services.AddScoped<IRolesReadRepository>(_ => new RolesReadRepository(connectionString));
         services.AddScoped<IProductsReadRepository>(_ => new ProductsReadRepository(connectionString));
         services.AddScoped<IProductVariationsReadRepository>(_ => new ProductVariationsReadRepository(connectionString));
@@ -162,5 +177,23 @@ public static class DependencyInjection
         services.AddScoped<IQueryHandler<GetDashboardSummaryQuery, DashboardSummaryDto>, GetDashboardSummaryQueryHandler>();
 
         return services;
+    }
+
+    private static void ConfigureResend(IServiceCollection services, IConfiguration configuration)
+    {
+        var resendSection = configuration.GetSection(ResendEmailOptions.SectionName);
+        var resendOptions = resendSection.Get<ResendEmailOptions>() ?? new ResendEmailOptions();
+        var apiToken = resendOptions.ApiToken ?? Environment.GetEnvironmentVariable("RESEND_APITOKEN");
+
+        if (string.IsNullOrWhiteSpace(apiToken))
+        {
+            throw new InvalidOperationException("Resend ApiToken must be configured (Resend:ApiToken or RESEND_APITOKEN).");
+        }
+
+        services.Configure<ResendEmailOptions>(resendSection);
+        services.Configure<ResendClientOptions>(options => options.ApiToken = apiToken);
+        services.AddHttpClient<ResendClient>();
+        services.AddTransient<IResend, ResendClient>();
+        services.AddScoped<IEmailSender, ResendEmailSender>();
     }
 }

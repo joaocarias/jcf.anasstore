@@ -1,4 +1,5 @@
 ﻿import {
+  BarChart2,
   Building2,
   ChevronDown,
   CreditCard,
@@ -14,6 +15,7 @@
   Shirt,
   ShoppingBag,
   Tags,
+  TrendingUp,
   UserCircle2,
   UsersRound,
 } from 'lucide-react'
@@ -122,6 +124,46 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
         )}
 
         <SidebarItem
+          icon={BarChart2}
+          label="Relatórios"
+          active={expandedMenu === 'Relatórios'}
+          hasChildren
+          expanded={expandedMenu === 'Relatórios'}
+          onClick={() => onToggleMenu('Relatórios')}
+        />
+        {expandedMenu === 'Relatórios' && (
+          <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
+            <SidebarSubItem
+              icon={ReceiptText}
+              label="Vendas de Produtos"
+              active={currentPage === 'report-sales'}
+              onClick={() => {
+                onNavigate('report-sales')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={TrendingUp}
+              label="ABC de Produtos"
+              active={currentPage === 'report-abc'}
+              onClick={() => {
+                onNavigate('report-abc')
+                onClose()
+              }}
+            />
+            <SidebarSubItem
+              icon={BarChart2}
+              label="Fluxo de Caixa"
+              active={currentPage === 'report-cash-flow'}
+              onClick={() => {
+                onNavigate('report-cash-flow')
+                onClose()
+              }}
+            />
+          </div>
+        )}
+
+        <SidebarItem
           icon={UsersRound}
           label="Gestão"
           active={expandedMenu === 'Gestão'}
@@ -173,6 +215,28 @@ function SidebarContent({ expandedMenu, onToggleMenu, onNavigate, currentPage, o
               active={currentPage === 'access-rules'}
               onClick={() => {
                 onNavigate('access-rules')
+                onClose()
+              }}
+            />
+          </div>
+        )}
+
+        <SidebarItem
+          icon={Settings}
+          label="Utilidades"
+          active={expandedMenu === 'Utilidades'}
+          hasChildren
+          expanded={expandedMenu === 'Utilidades'}
+          onClick={() => onToggleMenu('Utilidades')}
+        />
+        {expandedMenu === 'Utilidades' && (
+          <div className="ml-7 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-800">
+            <SidebarSubItem
+              icon={Tags}
+              label="Etiquetas"
+              active={currentPage === 'labels'}
+              onClick={() => {
+                onNavigate('labels')
                 onClose()
               }}
             />

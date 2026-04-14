@@ -12,6 +12,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
 WORKDIR /app
 COPY --from=build /app/publish ./
 
+RUN adduser --disabled-password --gecos "" --uid 1001 appuser \
+    && chown -R appuser:appuser /app
+USER appuser
+
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
