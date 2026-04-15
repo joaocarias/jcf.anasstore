@@ -187,7 +187,10 @@ public static class DependencyInjection
 
         if (string.IsNullOrWhiteSpace(apiToken))
         {
-            throw new InvalidOperationException("Resend ApiToken must be configured (Resend:ApiToken or RESEND_APITOKEN).");
+            // Resend é opcional - registrar um serviço nulo para desenvolvimento
+            services.Configure<ResendEmailOptions>(resendSection);
+            services.AddScoped<IEmailSender, NullEmailSender>();
+            return;
         }
 
         services.Configure<ResendEmailOptions>(resendSection);
