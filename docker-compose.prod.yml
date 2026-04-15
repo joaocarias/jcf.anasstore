@@ -24,6 +24,8 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/anasstore-backend:latest
     container_name: anasstore-backend
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       ASPNETCORE_URLS: ${ASPNETCORE_URLS?Defina ASPNETCORE_URLS no .env}
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT?Defina ASPNETCORE_ENVIRONMENT no .env}
