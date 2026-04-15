@@ -37,10 +37,17 @@ fi
 
 log_info "Iniciando deploy do Ana's Store..."
 
+# Compose files de producao (garante uso do docker-compose.prod.yml e do .env)
+COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.prod.yml)
+ENV_FILE=(--env-file .env)
+
 # 1. Backup do estado atual
 log_info "Fazendo backup do docker-compose.yml..."
 mkdir -p "$BACKUP_DIR"
 cp "$DEPLOY_DIR/docker-compose.yml" "$BACKUP_DIR/docker-compose.$(date +%s).yml"
+if [ -f "$DEPLOY_DIR/docker-compose.prod.yml" ]; then
+    cp "$DEPLOY_DIR/docker-compose.prod.yml" "$BACKUP_DIR/docker-compose.prod.$(date +%s).yml"
+fi
 
 # 2. Atualizar repositório
 log_info "Atualizando repositório git..."
@@ -51,18 +58,18 @@ git pull origin production
 
 # 3. Puxar novas imagens Docker
 log_info "Puxando imagens Docker atualizadas..."
-docker compose pull || {
+docker compose "${ENV_FILE[@]}" "${COMPOSE_FILES[@]}" pull || {
     log_error "Falha ao fazer pull das imagens Docker"
     exit 1
 }
 
 # 4. Parar containers existentes
 log_info "Parando containers..."
-docker compose down
+docker compose "${ENV_FILE[@]}" "${COMPOSE_FILES[@]}" down
 
 # 5. Iniciar novos containers
 log_info "Iniciando novos containers..."
-docker compose up -d || {
+docker compose "${ENV_FILE[@]}" "${COMPOSE_FILES[@]}" up -d || {
     log_error "Falha ao iniciar containers"
     exit 1
 }

@@ -44,8 +44,8 @@ chmod 600 ~/.ssh/authorized_keys
 chmod +x scripts/deploy.sh
 
 # 8. Teste o deploy manualmente
-docker compose pull
-docker compose up -d
+docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml pull
+docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d
 docker compose ps  # Verificar status
 ```
 
@@ -62,7 +62,7 @@ Push para GHCR (ghcr.io/seu-usuario/...)
     ↓
 SSH para VPS
     ↓
-git pull + docker compose pull + docker compose up -d
+git pull + docker compose (prod) pull + docker compose (prod) up -d
     ↓
 ✓ Live!
 ```
