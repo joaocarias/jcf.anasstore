@@ -35,7 +35,7 @@ appsettings.*.json
 secrets.json
 
 ## Entity Framework
-Migrations/
+## Keep EF Core migrations under source control
 
 ## Rider / ReSharper
 .idea/
@@ -102,3 +102,10 @@ Thumbs.db
 **/Dockerfile.*
 .dockerignore
 /.dotnet/.dotnet
+.dotnet_cli/
+.nuget/
+.msbuild/
+.temp/
+restore.diag.log
+build.diag.log
+build2.diag.log

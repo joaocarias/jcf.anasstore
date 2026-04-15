@@ -116,12 +116,20 @@ static async Task ApplyMigrationsAndSeedAsync(WebApplication app)
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (autoMigrate)
     {
-        await dbContext.Database.MigrateAsync();
-        await dbContext.Database.ExecuteSqlRawAsync(
-            """
-            drop index if exists "IX_product_variations_code";
-            drop index if exists "IX_product_variations_product_id_color_id_item_size_id";
-            """);
+        var hasMigrations = dbContext.Database.GetMigrations().Any();
+        if (hasMigrations)
+        {
+            await dbContext.Database.MigrateAsync();
+            await dbContext.Database.ExecuteSqlRawAsync(
+                """
+                drop index if exists "IX_product_variations_code";
+                drop index if exists "IX_product_variations_product_id_color_id_item_size_id";
+                """);
+        }
+        else
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+        }
     }
 
     if (seedDefaultUsers)
