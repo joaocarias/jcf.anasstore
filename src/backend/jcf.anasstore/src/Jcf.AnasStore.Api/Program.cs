@@ -5,6 +5,7 @@ using Jcf.AnasStore.Infrastructure.Persistence;
 using Jcf.AnasStore.Infrastructure.Security;
 using Jcf.AnasStore.Api.Options;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
@@ -69,6 +70,15 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+var forwardedHeaderOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    ForwardLimit = null
+};
+forwardedHeaderOptions.KnownIPNetworks.Clear();
+forwardedHeaderOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeaderOptions);
+
 await ApplyMigrationsAndSeedAsync(app);
 
 if (app.Environment.IsProduction())
@@ -94,6 +104,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowedOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapGet("/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 app.MapControllers();
 app.MapGet("/", () => Results.Ok(new { message = "Ana's Store API is running." })).AllowAnonymous();
 

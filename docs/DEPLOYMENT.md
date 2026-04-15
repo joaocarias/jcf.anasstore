@@ -36,6 +36,14 @@ Docker Compose (containers)
 
 ## Setup do Servidor VPS
 
+### 0. DNS (subdomínio app)
+
+No painel do seu provedor de DNS (Hostinger / Cloudflare / etc), crie/ajuste:
+
+- Registro `A` para `app` apontando para o IP público da sua VPS
+
+Depois aguarde a propagação do DNS.
+
 ### 1. Conectar ao VPS via SSH
 
 ```bash
@@ -89,6 +97,9 @@ nano .env
 **Exemplo de `.env` para produção:**
 
 ```env
+# Domain / Reverse proxy (Caddy)
+APP_DOMAIN=app.anasstore.com.br
+
 # Database
 POSTGRES_DB=anasstoreapp_prod
 POSTGRES_USER=postgres
@@ -112,6 +123,13 @@ Seed__EnableDefaultUsers=false
 
 # Frontend API
 VITE_API_BASE_URL=https://seu-dominio.com/api
+```
+
+### 5.1 Liberar portas no firewall (se usar ufw)
+
+```bash
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
 ```
 
 ### 6. Configurar autenticação Docker Registry
@@ -341,7 +359,8 @@ cat .env | grep POSTGRES
 
 ## Checklist de Produção
 
-- [ ] SSL/HTTPS configurado no Nginx (frontend)
+- [ ] DNS `app` apontando para a VPS
+- [ ] Portas 80/443 liberadas (firewall)
 - [ ] Domínio customizado apontando para o VPS
 - [ ] Backup do banco de dados configurado
 - [ ] Monitoramento de logs configurado

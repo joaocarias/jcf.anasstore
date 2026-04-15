@@ -2,6 +2,25 @@
 # Use com: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: anasstore-caddy
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_healthy
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN?Defina APP_DOMAIN no .env (ex: app.anasstore.com.br)}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - anasstore-network
+
   db:
     image: postgres:16
     container_name: anasstore-db
@@ -48,7 +67,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "5117:8080"
+      - "127.0.0.1:5117:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -75,7 +94,7 @@ services:
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL?Defina VITE_API_BASE_URL no .env}
     ports:
-      - "5173:80"
+      - "127.0.0.1:5173:80"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 30s
@@ -94,6 +113,10 @@ services:
 
 volumes:
   anasstore_db:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
 
 networks:

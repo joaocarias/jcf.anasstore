@@ -12,6 +12,11 @@
 ### No VPS Hostinger
 
 ```bash
+# 0. DNS (no painel do domínio)
+# Crie/ajuste um registro A:
+#   app  -> IP_PÚBLICO_DA_SUA_VPS
+# Aguarde propagação (normalmente minutos, pode levar horas)
+
 # 1. Conectar ao VPS
 ssh -i /caminho/chave USERNAME@HOST
 
@@ -30,6 +35,14 @@ git clone -b production https://github.com/seu-usuario/seu-repo.git .
 # 4. Configurar ambiente
 cp .env.example .env
 nano .env  # Editar com suas variáveis
+
+# IMPORTANTE:
+# - APP_DOMAIN=app.anasstore.com.br
+# - PasswordReset__BaseUrl=https://app.anasstore.com.br
+
+# 4.1 Liberar portas no firewall (se usar ufw)
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
 
 # 5. Login no GHCR (Docker Registry)
 docker login ghcr.io -u seu-usuario-github -p seu-token-github
@@ -105,6 +118,9 @@ JwtSettings__ExpirationMinutes=1440
 
 # Frontend API
 VITE_API_BASE_URL=https://seu-dominio.com/api
+
+# Reverse proxy (Caddy)
+APP_DOMAIN=app.anasstore.com.br
 ```
 
 ## Troubleshooting
@@ -123,8 +139,8 @@ Para documentação detalhada, veja: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
 ## Próximas Melhorias
 
-- [ ] SSL/HTTPS com Let's Encrypt
-- [ ] Nginx reverse proxy
+- [ ] Backup automático do banco de dados
+- [ ] Monitoramento com Prometheus/Grafana
 - [ ] Backup automático do banco de dados
 - [ ] Monitoramento com Prometheus/Grafana
 - [ ] CI/CD com testes automáticos

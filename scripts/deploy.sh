@@ -93,6 +93,6 @@ log_info "Limpando imagens Docker antigas..."
 docker image prune -f --filter "until=72h"
 
 log_info "✓ Deploy concluído com sucesso!"
-log_info "Resumo: Frontend em http://localhost:5173, Backend em http://localhost:5117"
+log_info "Resumo: use o domínio configurado (APP_DOMAIN) via HTTPS. Debug local: Frontend http://localhost:5173, Backend http://localhost:5117"
 
 exit 0
