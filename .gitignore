@@ -73,6 +73,7 @@ pnpm-debug.log*
 .env
 .env.*
 *.local
+!.env.example
 
 ## Testing
 coverage/
@@ -98,7 +99,6 @@ Thumbs.db
 # ==============================
 
 **/docker-compose.override.yml
-**/docker-compose.*.yml
 **/Dockerfile.*
 .dockerignore
 /.dotnet/.dotnet

@@ -1,8 +1,27 @@
+# Docker Compose para Produção
+# Use com: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
 services:
+  db:
+    image: postgres:16
+    container_name: anasstore-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB?Defina POSTGRES_DB no .env}
+      POSTGRES_USER: ${POSTGRES_USER?Defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - anasstore_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - anasstore-network
+
   backend:
-    build:
-      context: ./src/backend/jcf.anasstore
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/anasstore-backend:latest
     container_name: anasstore-backend
     restart: unless-stopped
     environment:
@@ -23,20 +42,58 @@ services:
       Resend__FromName: ${Resend__FromName?Defina Resend__FromName no .env}
       PasswordReset__BaseUrl: ${PasswordReset__BaseUrl?Defina PasswordReset__BaseUrl no .env}
       PasswordReset__Path: ${PasswordReset__Path?Defina PasswordReset__Path no .env}
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "5117:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - anasstore-network
+    resources:
+      limits:
+        cpus: '1'
+        memory: 512M
+      reservations:
+        cpus: '0.5'
+        memory: 256M
 
   frontend:
-    build:
-      context: ./src/frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/anasstore-frontend:latest
     container_name: anasstore-frontend
     restart: unless-stopped
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL?Defina VITE_API_BASE_URL no .env}
     ports:
       - "5173:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - anasstore-network
+    resources:
+      limits:
+        cpus: '0.5'
+        memory: 256M
+      reservations:
+        cpus: '0.25'
+        memory: 128M
 
+volumes:
+  anasstore_db:
+    driver: local
+
+networks:
+  anasstore-network:
+    driver: bridge
