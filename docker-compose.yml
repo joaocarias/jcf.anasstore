@@ -16,6 +16,7 @@ services:
       Database__AutoMigrate: ${Database__AutoMigrate?Defina Database__AutoMigrate no .env}
       Seed__EnableLookupSeed: ${Seed__EnableLookupSeed?Defina Seed__EnableLookupSeed no .env}
       Seed__EnableDefaultUsers: ${Seed__EnableDefaultUsers?Defina Seed__EnableDefaultUsers no .env}
+      RESEND_APITOKEN: ${RESEND_APITOKEN?Defina RESEND_APITOKEN no .env}
     ports:
       - "5117:8080"
 
