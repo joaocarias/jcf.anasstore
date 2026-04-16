@@ -135,12 +135,11 @@ APP_DOMAIN=app.anasstore.com.br
 
 ## Documentação Completa
 
-Para documentação detalhada, veja: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+- Deployment detalhado: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+- Configuração de subdomínio: [`SUBDOMAIN_CONFIG.md`](SUBDOMAIN_CONFIG.md)
 
 ## Próximas Melhorias
 
-- [ ] Backup automático do banco de dados
-- [ ] Monitoramento com Prometheus/Grafana
 - [ ] Backup automático do banco de dados
 - [ ] Monitoramento com Prometheus/Grafana
 - [ ] CI/CD com testes automáticos
