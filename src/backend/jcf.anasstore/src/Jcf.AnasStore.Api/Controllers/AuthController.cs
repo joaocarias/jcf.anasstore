@@ -111,7 +111,7 @@ public sealed class AuthController(
             return BadRequest(new { errors = resetResult.Errors.Select(x => x.Description).ToArray() });
         }
 
-        var resetLink = BuildResetLink(user.Email);
+        var resetLink = BuildResetLink(user.Email ?? request.Email);
         var htmlBody = $"""
             <p>Ola, {WebUtility.HtmlEncode(user.Name)}.</p>
             <p>Sua senha temporaria: <strong>{WebUtility.HtmlEncode(temporaryPassword)}</strong></p>

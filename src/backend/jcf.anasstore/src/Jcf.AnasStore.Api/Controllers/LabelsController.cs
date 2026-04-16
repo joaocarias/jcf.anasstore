@@ -18,7 +18,7 @@ public sealed class LabelsController(ILabelService labelService) : ControllerBas
     [ProducesResponseType(typeof(byte[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GeneratePdf([FromForm] GenerateLabelsPdfFormRequest request, CancellationToken cancellationToken)
+    public IActionResult GeneratePdf([FromForm] GenerateLabelsPdfFormRequest request, CancellationToken cancellationToken)
     {
         try
         {

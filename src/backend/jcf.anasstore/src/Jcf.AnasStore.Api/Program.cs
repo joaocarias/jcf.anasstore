@@ -73,10 +73,9 @@ var app = builder.Build();
 var forwardedHeaderOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    ForwardLimit = null
+    ForwardLimit = null,
+    RequireHeaderSymmetry = false
 };
-forwardedHeaderOptions.KnownIPNetworks.Clear();
-forwardedHeaderOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedHeaderOptions);
 
 await ApplyMigrationsAndSeedAsync(app);
