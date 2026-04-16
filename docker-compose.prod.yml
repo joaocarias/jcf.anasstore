@@ -21,24 +21,6 @@ services:
     networks:
       - anasstore-network
 
-  db:
-    image: postgres:16
-    container_name: anasstore-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB?Defina POSTGRES_DB no .env}
-      POSTGRES_USER: ${POSTGRES_USER?Defina POSTGRES_USER no .env}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Defina POSTGRES_PASSWORD no .env}
-    volumes:
-      - anasstore_db:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - anasstore-network
-
   backend:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/anasstore-backend:latest
     container_name: anasstore-backend
@@ -62,9 +44,6 @@ services:
       Resend__FromName: ${Resend__FromName?Defina Resend__FromName no .env}
       PasswordReset__BaseUrl: ${PasswordReset__BaseUrl?Defina PasswordReset__BaseUrl no .env}
       PasswordReset__Path: ${PasswordReset__Path?Defina PasswordReset__Path no .env}
-    depends_on:
-      db:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -93,8 +72,6 @@ services:
       - anasstore-network
 
 volumes:
-  anasstore_db:
-    driver: local
   caddy_data:
     driver: local
   caddy_config:
