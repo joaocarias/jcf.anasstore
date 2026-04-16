@@ -23,8 +23,6 @@ services:
       Resend__FromName: ${Resend__FromName?Defina Resend__FromName no .env}
       PasswordReset__BaseUrl: ${PasswordReset__BaseUrl?Defina PasswordReset__BaseUrl no .env}
       PasswordReset__Path: ${PasswordReset__Path?Defina PasswordReset__Path no .env}
-    ports:
-      - "5117:8080"
 
   frontend:
     build:
@@ -37,6 +35,4 @@ services:
         condition: service_started
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL?Defina VITE_API_BASE_URL no .env}
-    ports:
-      - "5173:80"
 
