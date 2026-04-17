@@ -45,12 +45,6 @@ services:
       Resend__FromName: ${Resend__FromName?Defina Resend__FromName no .env}
       PasswordReset__BaseUrl: ${PasswordReset__BaseUrl?Defina PasswordReset__BaseUrl no .env}
       PasswordReset__Path: ${PasswordReset__Path?Defina PasswordReset__Path no .env}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     networks:
       - anasstore-network
 
