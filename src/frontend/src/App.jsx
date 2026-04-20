@@ -191,88 +191,105 @@ function LoginPage({ onLogin }) {
     }
   }
 
-
   return (
-    <main className="login-shell">
-      <section className="login-card">
-        <header className="title-block">
-          <p className="brand-tag">ANA&apos;S STORE</p>
-          <h1>Acessar sistema</h1>
-          <p>Entre com seu e-mail e senha para abrir o painel de controle.</p>
-        </header>
+    <main className="login-shell-modern">
+      <div className="login-background"></div>
 
-        <form className="form-grid" onSubmit={handleSubmit}>
-          <label className="field">
-            <span className="field-label">E-mail</span>
-            <div className="relative">
-              <Mail
-                size={16}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-              <input
-                className="field-input !pl-10"
-                type="email"
-                autoComplete="email"
-                placeholder="seuemail@anastore.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
+      <div className="login-container">
+        <div className="login-left">
+          <div className="login-illustration">
+            <div className="illustration-circle circle-1"></div>
+            <div className="illustration-circle circle-2"></div>
+            <div className="illustration-circle circle-3"></div>
+            <div className="user-icon-wrapper">
+              <svg className="user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+              </svg>
             </div>
-          </label>
+            <p className="illustration-text">Bem-vinda ao seu espaço!</p>
+          </div>
+        </div>
 
-          <label className="field">
-            <span className="field-label">Senha</span>
-            <div className="relative">
-              <KeyRound
-                size={16}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-              <input
-                className="field-input !pl-10 !pr-10"
-                type={isPasswordVisible ? 'text' : 'password'}
-                autoComplete="current-password"
-                placeholder="Digite sua senha"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
+        <div className="login-right">
+          <section className="login-card-modern">
+            <header className="title-block-modern">
+              <p className="brand-tag-modern">ANA&apos;S STORE</p>
+              <h1>Entre para continuar</h1>
+              <p>Acesse seu painel de gerenciamento</p>
+            </header>
+
+            <form className="form-grid-modern" onSubmit={handleSubmit}>
+              <label className="field-modern">
+                <span className="field-label-modern">E-mail</span>
+                <div className="input-wrapper">
+                  <Mail size={18} className="input-icon" />
+                  <input
+                    className="field-input-modern"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    required
+                  />
+                </div>
+              </label>
+
+              <label className="field-modern">
+                <span className="field-label-modern">Senha</span>
+                <div className="input-wrapper">
+                  <KeyRound size={18} className="input-icon" />
+                  <input
+                    className="field-input-modern"
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Digite sua senha"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible((current) => !current)}
+                    className="toggle-password-btn"
+                    aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+                  >
+                    {isPasswordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </label>
+
+              {errorMessage && <p className="error-message-modern">{errorMessage}</p>}
+
+              <button
+                type="submit"
+                className="login-button-modern"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="spinner-mini"></div>
+                    Conectando...
+                  </>
+                ) : (
+                  <>
+                    <LogIn size={18} />
+                    Conectar
+                  </>
+                )}
+              </button>
+
               <button
                 type="button"
-                onClick={() => setIsPasswordVisible((current) => !current)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600"
-                aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+                className="forgot-password-btn"
+                onClick={() => navigate(RESET_PASSWORD_PATH)}
               >
-                {isPasswordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                Esqueci minha senha
               </button>
-            </div>
-          </label>
-
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-          <button type="submit" className="login-button inline-flex items-center justify-center gap-2" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <ShieldCheck size={16} />
-                Autenticando...
-              </>
-            ) : (
-              <>
-                <LogIn size={16} />
-                Entrar
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            className="text-sm font-semibold text-gray-600 transition hover:text-gray-900"
-            onClick={() => navigate(RESET_PASSWORD_PATH)}
-          >
-            Esqueci minha senha
-          </button>
-        </form>
-      </section>
+            </form>
+          </section>
+        </div>
+      </div>
     </main>
   )
 }
