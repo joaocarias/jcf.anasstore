@@ -1,8 +1,7 @@
-{
-  email admin@anasstore.com.br
-}
-
 {$APP_DOMAIN} {
+  tls admin@anasstore.com.br {
+    protocols tls1.2 tls1.3
+  }
   encode zstd gzip
   reverse_proxy frontend:80
 }
